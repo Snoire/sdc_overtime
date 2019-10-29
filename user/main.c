@@ -291,17 +291,29 @@ static int parseArg(int argc, char **argv)
     int opt;
     int option_index = 0;
     struct option long_options[]={
-        {"help",no_argument, NULL, 'h'}
+        {"help",no_argument, NULL, 'H'},
+        {"list",no_argument, NULL, 'L'}
     };
-    while( (opt=getopt_long(argc, argv, "e:",long_options,&option_index)) != -1 ) //少加了一个括号..
+    if(argc==1)
+        return -1; //只有在正确解析选项才返回0
+    while( (opt=getopt_long(argc, argv, "e:hl",long_options,&option_index)) != -1 ) //少加了一个括号..
     {
         switch(opt)
         {
             case 'e':
                 changeEtime();
                 break;
+            case 'H':
+                showHelp();
+                break;
             case 'h':
                 showHelp();
+                break;
+            case 'L':
+                doList();
+                break;
+            case 'l':
+                doList();
                 break;
             default:
                 return -1;
