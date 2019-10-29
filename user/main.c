@@ -96,22 +96,27 @@ int welcome()
 
 int init()
 {
+ //   int l[6];
 	FILE *fp = fopen(filePath,"r");
 	
-	if(fp!=NULL){
-		fread(&totalRecords,sizeof(totalRecords),1,fp);
+	if(fp!=NULL)
+    {
+        fscanf(fp, "%2d", &totalRecords);
+        printf("totalRecords= %d\n",totalRecords);
+        fscanf(fp,"%*[^\n]\n"); //读第一行，但不用
 		
-		for(int i = 0 ; i < totalRecords;i++){
-			fread(&clkRecord[i],sizeof(CLOCKINRECORD),1,fp);
+		for(int i = 0 ; i < totalRecords;i++)
+        {
+            fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
 		}
-	}else{
+	}
+    else
+    {
 		fp = fopen(filePath,"w");
-		
-		fwrite(&totalRecords,sizeof(totalRecords),1,fp);
+        fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
 	}
 	fclose(fp);
 	fp=NULL;
-
 
     return 0;
 }
@@ -208,13 +213,16 @@ int doModify()
 int doList()
 {
     int totalTime = 0;
-	if(totalRecords==0){
+	if(totalRecords==0)
+    {
 		printf("nothing..\n");
-		
-	}else{
-		printf("%-4s%-9s%4s%7s%7s%6s\n","n","date","m","stime","etime","dur");
-		for(int i = 0 ; i<totalRecords ;i++){
-			printf("%-4d%-9d%4d%7d%7d%6d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);
+	}
+    else
+    {
+		printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
+		for(int i = 0 ; i<totalRecords ;i++)
+        {
+			printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
 		}
         printf("totalTime: %d minutes\n",totalTime);
