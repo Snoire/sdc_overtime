@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <time.h>
 
 #include "dayOfWeek.h"
@@ -16,71 +17,76 @@ typedef struct clockInRecord{
 } CLOCKINRECORD; //给结构体起一个别名
 
 CLOCKINRECORD clkRecord[60];
-int totalRecords=0;
+int totalRecords=0; //总记录数
 char *filePath="data/record.data";
 struct tm* tmp;  //保存时间信息
 
 char clearInput;
 
 //声明函数
-int welcome();
-int init();
-int doAdd();
-int doDelete();
-int doModify();
-int doList();
-int doSearch();
-int writeToFile();
+static int welcome();
+static int init();
+static int doList();
+static int doAdd();
+static int doDelete();
+static int doModify();
+static int doSearch();
+static int writeToFile();
+static int parseArg();
+static int showHelp();
+static int changeEtime();
 
 
-int main()
+
+int main(int argc, char **argv)
 {
-    welcome();
-	init();
 	volatile int flag = 1;//退出的标志
 	int num = 7;
-	while(flag)
-	{	
-        num = 7; //如果不恢复初始值，随便输入一个字母将保持上次的结果
-		printf("(overtime) ");
-		scanf("%d",&num);   //如果不清空输入缓冲区，在这里输入字母，会一直死循环
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); 
+    init();
+    if(parseArg(argc,argv) != 0)
+    {
+        welcome();
+        while(flag)
+        {	
+            num = 7; //如果不恢复初始值，随便输入一个字母将保持上次的结果
+            printf("(overtime) ");
+            scanf("%d",&num);   //如果不清空输入缓冲区，在这里输入字母，会一直死循环
+            while((clearInput = getchar()) != '\n' && clearInput != EOF); 
 
-		if(num<0||num>6)
-			printf("ops!\n");
-		else
-        {
-			switch(num)
+            if(num<0||num>6)
+                printf("ops!\n");
+            else
             {
-                case 0:
-                    printf("0.help 1.add 2.del 3.modify 4.list 5.search 6.exit\n");
-                    break;
-				case 1:
-					doAdd(); break;
-				case 2:
-					doDelete(); break;
-				case 3:
-					doModify(); break;
-				case 4:
-					doList(); break;
-				case 5:
-					doSearch(); break;
-				case 6:
-					flag = 0;
-					break;
-				default:
-                    printf("ops!\n");
-					break;
-			} 
-		}
-	} 
-
-
-    printf("\nThe end..\n\n");
+                switch(num)
+                {
+                    case 0:
+                        printf("0.help 1.add 2.del 3.modify 4.list 5.search 6.exit\n");
+                        break;
+                    case 1:
+                        doAdd(); break;
+                    case 2:
+                        doDelete(); break;
+                    case 3:
+                        doModify(); break;
+                    case 4:
+                        doList(); break;
+                    case 5:
+                        doSearch(); break;
+                    case 6:
+                        flag = 0;
+                        break;
+                    default:
+                        printf("ops!\n");
+                        break;
+                } 
+            }
+        } 
+        printf("\nThe end..\n\n");
+    }
     return 0;
 }
 
-int welcome()
+static int welcome()
 {
     tmp = getCurrentTime();
 
@@ -94,14 +100,13 @@ int welcome()
     return 0;
 }
 
-int init()
+static int init()
 {
 	FILE *fp = fopen(filePath,"r");
 	
 	if(fp!=NULL)
     {
         fscanf(fp, "%2d", &totalRecords);
-        printf("totalRecords= %d\n",totalRecords);
         fscanf(fp,"%*[^\n]\n"); //读第一行，但不用
 		
 		for(int i = 0 ; i < totalRecords;i++)
@@ -112,7 +117,6 @@ int init()
     else // if file does not exit, create and init it.
     {
 		fp = fopen(filePath,"w");
-        //fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
         totalRecords = daysInaMonth(tmp->tm_year+1900,tmp->tm_mon+1);
         for(int i = 0; i < totalRecords; i++)
         {
@@ -138,7 +142,28 @@ int init()
     return 0;
 }
 
-int doAdd()
+static int doList()
+{
+    int totalTime = 0;
+	if(totalRecords==0)
+    {
+		printf("nothing..\n");
+	}
+    else
+    {
+		printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
+		for(int i = 0 ; i<totalRecords ;i++)
+        {
+			printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
+            totalTime += clkRecord[i].duration;
+		}
+        printf("totalTime: %d minutes\n",totalTime);
+	}
+
+    return 0;
+}
+
+static int doAdd()
 {
     int shour, smin, ehour, emin;
 
@@ -168,7 +193,7 @@ int doAdd()
     return 0;
 }
 
-int doDelete()
+static int doDelete()
 {
 	doList();
 	
@@ -195,7 +220,7 @@ int doDelete()
     return 0;
 }
 
-int doModify()
+static int doModify()
 {
     doList();
 
@@ -227,28 +252,7 @@ int doModify()
     return 0;
 }
 
-int doList()
-{
-    int totalTime = 0;
-	if(totalRecords==0)
-    {
-		printf("nothing..\n");
-	}
-    else
-    {
-		printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
-		for(int i = 0 ; i<totalRecords ;i++)
-        {
-			printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
-            totalTime += clkRecord[i].duration;
-		}
-        printf("totalTime: %d minutes\n",totalTime);
-	}
-
-    return 0;
-}
-
-int doSearch()
+static int doSearch()
 {
     int searchDate, i;
     printf("please input the date that you want to search:\n");
@@ -266,7 +270,7 @@ int doSearch()
     return 0;
 }
 
-int writeToFile()
+static int writeToFile()
 {
     FILE *fp = fopen(filePath,"w");
     if(fp!=NULL)
@@ -281,3 +285,43 @@ int writeToFile()
 
     return 0;
 }
+
+static int parseArg(int argc, char **argv)
+{
+    int opt;
+    int option_index = 0;
+    struct option long_options[]={
+        {"help",no_argument, NULL, 'h'}
+    };
+    while( (opt=getopt_long(argc, argv, "e:",long_options,&option_index)) != -1 ) //少加了一个括号..
+    {
+        switch(opt)
+        {
+            case 'e':
+                changeEtime();
+                break;
+            case 'h':
+                showHelp();
+                break;
+            default:
+                return -1;
+        }
+    }
+    return 0;
+}
+
+static int changeEtime()
+{
+}
+
+static int showHelp()
+{
+    printf("usage: overtime [-h] [-e <etime>]\n\n");
+    printf("Options:\n\
+  -h          show help\n\
+  -e <etime>  change etime\n\n");
+
+    return 0;
+}
+
+
