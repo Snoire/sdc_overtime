@@ -18,6 +18,7 @@ typedef struct clockInRecord{
 CLOCKINRECORD clkRecord[60];
 int totalRecords=0;
 char *filePath="data/record.data";
+struct tm* tmp;  //保存时间信息
 
 char clearInput;
 
@@ -81,7 +82,6 @@ int main()
 
 int welcome()
 {
-    struct tm* tmp;
     tmp = getCurrentTime();
 
     printf("Welcome to overtime!\n");
@@ -109,10 +109,28 @@ int init()
             fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
 		}
 	}
-    else // 空文件
+    else // if file does not exit, create and init it.
     {
 		fp = fopen(filePath,"w");
-        fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
+        //fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
+        totalRecords = daysInaMonth(tmp->tm_year+1900,tmp->tm_mon+1);
+        for(int i = 0; i < totalRecords; i++)
+        {
+            clkRecord[i].date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + i+1;
+            if(dayOfWeek(tmp->tm_year+1900,tmp->tm_mon+1,i+1) > 5 || dayOfWeek(tmp->tm_year+1900,tmp->tm_mon+1,i+1) < 1)
+            {
+                clkRecord[i].mark = 0;
+                clkRecord[i].startime = 0;
+            }
+            else
+            {
+                clkRecord[i].mark = 1;
+                clkRecord[i].startime = 1800;
+            }
+            clkRecord[i].endtime = 0;
+            clkRecord[i].duration = 0;
+        }
+        writeToFile();
 	}
 	fclose(fp);
 	fp=NULL;

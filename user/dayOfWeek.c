@@ -2,7 +2,7 @@
 
 char clearInput;
 
-int dayOfWeek( int tmp, int m, int d)
+int dayOfWeek( int tmp, int m, int d) // 0-6, 0 for sun..
 {
 //    int w, y, c, m, d;
 //    int tmp;
