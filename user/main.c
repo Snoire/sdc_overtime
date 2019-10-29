@@ -96,7 +96,6 @@ int welcome()
 
 int init()
 {
- //   int l[6];
 	FILE *fp = fopen(filePath,"r");
 	
 	if(fp!=NULL)
@@ -110,7 +109,7 @@ int init()
             fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
 		}
 	}
-    else
+    else // 空文件
     {
 		fp = fopen(filePath,"w");
         fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
@@ -240,7 +239,7 @@ int doSearch()
     for(i=0; i< totalRecords; i++)
         if(searchDate==clkRecord[i].date)
         {
-			printf("%-4d%-9d%4d%7d%7d%6d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);
+			printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             break;
         }
     if(i==totalRecords)
@@ -254,10 +253,10 @@ int writeToFile()
     FILE *fp = fopen(filePath,"w");
     if(fp!=NULL)
     {
-        fwrite(&totalRecords,sizeof(totalRecords),1,fp);
+        fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
         for(int i = 0; i< totalRecords; i++)
         {
-            fwrite(&clkRecord[i],sizeof(CLOCKINRECORD),1,fp);
+            fprintf(fp,"%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration );
         }
     }
     fclose(fp);
