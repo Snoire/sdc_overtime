@@ -37,6 +37,7 @@ static int showHelp();
 static int changeRecord(int,int,int,int);
 static int calDuration(int);
 static int sort();
+static int Del(int);
 
 
 
@@ -222,6 +223,14 @@ static int doDelete()
 	scanf("%d",&delnum);
     while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 
+    Del(delnum);
+    writeToFile();
+
+    return 0;
+}
+
+static int Del(int delnum)
+{
 	if(delnum<1||delnum>totalRecords)
 		return 0;
 	 
@@ -230,13 +239,9 @@ static int doDelete()
     else
     {
         for(int i = delnum; i <totalRecords;i++)
-        {
             clkRecord[i-1]=clkRecord[i];
-        }
         totalRecords--;
     }
-    writeToFile();
-
     return 0;
 }
 
@@ -302,7 +307,7 @@ static int writeToFile()
 
 static int parseArg(int argc, char **argv)
 {
-    int opt, mark=0, date=0, stime=0, etime=0;
+    int opt, Mflag=0, date=0, stime=0, etime=0;
     int option_index = 0;
     struct option long_options[]={
         {"help",no_argument, NULL, 'H'},
@@ -311,18 +316,12 @@ static int parseArg(int argc, char **argv)
     };
     if(argc==1)
         return 1; //进入主循环
-    while( (opt=getopt_long(argc, argv, "d:m::s:e:hlv",long_options,&option_index)) != -1 ) //少加了一个括号..
+    while( (opt=getopt_long(argc, argv, "d:s:e:M:D:hlv",long_options,&option_index)) != -1 ) //少加了一个括号..
     {
         switch(opt)
         {
             case 'd':
                 date = atoi(optarg); //这里应该判断一下
-                break;
-            case 'm':
-                if(optarg)  //如果不为空指针，即m选项后面带参数
-                    mark = atoi(optarg);
-                else
-                    mark = 1;  //default value is 1
                 break;
             case 's':
                 stime = atoi(optarg);
@@ -330,6 +329,13 @@ static int parseArg(int argc, char **argv)
             case 'e':
                 etime = atoi(optarg);
                 break;
+            case 'M':
+                Mflag = atoi(optarg);
+                break;
+            case 'D':
+                Del(atoi(optarg));
+                writeToFile();
+                return 0;
             case 'H':
                 showHelp();
                 break;
@@ -354,17 +360,17 @@ static int parseArg(int argc, char **argv)
     }
     if( (date+stime+etime) !=0) //至少有一个不为0
     {
-        if( changeRecord(date,mark,stime,etime) == -1 )
+        if( changeRecord(Mflag,date,stime,etime) == -1 )
             return -2;
     }
 
     return 0;  //返回0的话，就是正常解析选项
 }
 
-static int changeRecord(int date, int mark, int stime, int etime)
+static int changeRecord(int Mflag, int date, int stime, int etime)
 {
     int result;
-    if(mark==0)
+    if(Mflag==0)
     {
         if(date==0)
         {
@@ -388,13 +394,11 @@ static int changeRecord(int date, int mark, int stime, int etime)
             else
                 clkRecord[totalRecords].endtime = etime;
             calDuration(totalRecords);
-//            printf("%d, %d\n",totalRecords,clkRecord[totalRecords].endtime);
         }
         else  //找到记录，紧随其后添加
         {
             while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
                 result++;
-            totalRecords++;
             for(int i=totalRecords-1; i> result+1; i--) //向后腾出空间
             {
                 clkRecord[i] = clkRecord[i-1];
@@ -413,32 +417,18 @@ static int changeRecord(int date, int mark, int stime, int etime)
         }
         totalRecords ++;
     }
-    else  //mark!=0
+    else  //修改记录
     {
-        if(date==0)
-        {
-            if(tmp->tm_mday==1)
-                return -1; //没有前一天
-            else
-                date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + tmp->tm_mday-1; //前一天
-        }
-
-        result = doSearch(date);
-        if(result==-1)  //修改是必须要能找到记录的
-            return -2;
+        Mflag --;
+        if(stime==0)
+            clkRecord[Mflag].startime= 1800;
         else
-        {
-            result += mark - 1;  //移动到指定值
-            if(stime==0)
-                clkRecord[result].startime= 1800;
-            else
-                clkRecord[result].startime= stime;
-            if(etime==0)
-                clkRecord[result].endtime= 2000;
-            else
-                clkRecord[result].endtime= etime;
-            calDuration(result);
-        }
+            clkRecord[Mflag].startime= stime;
+        if(etime==0)
+            clkRecord[Mflag].endtime= 2000;
+        else
+            clkRecord[Mflag].endtime= etime;
+        calDuration(Mflag);
     }
     writeToFile();
     
