@@ -89,7 +89,6 @@ int main(int argc, char **argv)
                                 searchDate++;
                                 printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
                             }
-
                         }
                         else if(searchDate==-1)
                             printf("no record found here.\n");
@@ -142,25 +141,6 @@ static int init()
     else // if file does not exit, create and init it.
     {
 		fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
-/*
-        totalRecords = daysInaMonth(tmp->tm_year+1900,tmp->tm_mon+1);
-        for(int i = 0; i < totalRecords; i++)
-        {
-            clkRecord[i].date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + i+1;
-            if(dayOfWeek(tmp->tm_year+1900,tmp->tm_mon+1,i+1) > 5 || dayOfWeek(tmp->tm_year+1900,tmp->tm_mon+1,i+1) < 1)
-            {
-                clkRecord[i].mark = 0;
-                clkRecord[i].startime = 0;
-            }
-            else
-            {
-                clkRecord[i].mark = 1;
-                clkRecord[i].startime = 1800;
-            }
-            clkRecord[i].endtime = 0;
-            clkRecord[i].duration = 0;
-        }
-*/
         writeToFile();
 	}
 	fclose(fp);
@@ -231,13 +211,20 @@ static int doDelete()
 
 static int Del(int delnum)
 {
-	if(delnum<1||delnum>totalRecords)
+    int result=0;
+	if(delnum<1 || delnum > totalRecords)
 		return 0;
 	 
     if(delnum==totalRecords)
         totalRecords--;
     else
     {
+        result = doSearch(clkRecord[delnum-1].date);
+        while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
+            result++;
+        for(int i = delnum; i < result; i++)
+            clkRecord[i+1].mark --;
+
         for(int i = delnum; i <totalRecords;i++)
             clkRecord[i-1]=clkRecord[i];
         totalRecords--;
@@ -291,6 +278,7 @@ static int doSearch(int searchDate)
 
 static int writeToFile()
 {
+    sort();
     FILE *fp = fopen(filePath,"w");
     if(fp!=NULL)
     {
@@ -430,6 +418,7 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
             clkRecord[Mflag].endtime= etime;
         calDuration(Mflag);
     }
+    
     writeToFile();
     
     return 0;
@@ -437,15 +426,16 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
 
 static int showHelp()
 {
-    printf("usage: overtime [-hlv] [-d date] [-m [mark]] [-s stime] [-e etime]\n\n");
+    printf("usage: overtime [-hlv] [-d date] [-s stime] [-e etime] [-M number] [-D number]\n\n");
     printf("Options:\n\
   -h, --help           show help\n\
   -l, --list           show list\n\
   -v, --version        show version\n\
   -d date              specify the date to modify\n\
-  -m [mark]            specify the mark to modify\n\
   -s stime             change stime\n\
-  -e etime             change etime\n\n");
+  -e etime             change etime\n\
+  -M number            modify record\n\
+  -D number            Delete record\n\n");
 
     return 0;
 }
@@ -463,6 +453,19 @@ static int calDuration(int i)
 
 static int sort()
 {
+    CLOCKINRECORD recordTmp;
+    for(int i=0; i< totalRecords-1; i++)
+    {
+        for(int j=i+1; j< totalRecords; j++)
+        {
+            if(clkRecord[j].date < clkRecord[i].date || (clkRecord[j].date == clkRecord[i].date && clkRecord[j].mark < clkRecord[i].mark) )
+            {
+                recordTmp = clkRecord[i];
+                clkRecord[i] = clkRecord[j];
+                clkRecord[j] = recordTmp;
+            }
+        }
+    }
 
     return 0;
 }
