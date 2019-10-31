@@ -43,7 +43,7 @@ static int Del(int);
 
 int main(int argc, char **argv)
 {
-    int num = 7;
+    int num;
     int searchDate;
     int retParseArg=0;
     volatile int flag = 1;//退出的标志
@@ -55,15 +55,17 @@ int main(int argc, char **argv)
         welcome();
         while(flag)
         {    
-            num = 7; //如果不恢复初始值，随便输入一个字母将保持上次的结果
+            num = 0; //如果不恢复初始值，随便输入一个字母将保持上次的结果
 
             printf("(overtime) ");
-            fgets(str, 2, stdin); //读取1个字符
-            while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+            fgets(str, 2 , stdin); //读取1个字符
             if(*str==10)
-                num = 'h';
+                num = 0;
             else
+            {
                 num = *str;
+                while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+            }
 
             switch(num)
             {
@@ -100,6 +102,8 @@ int main(int argc, char **argv)
                     break;
                 case 'q':
                     flag = 0;
+                    break;
+                case 0:
                     break;
                 default:
                     printf("ops!\n");
@@ -183,7 +187,10 @@ static int doAdd()
     if(*str==10)
         date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + tmp->tm_mday-1; //前一天
     else
+    {
         date = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
 
     printf("what's the time when you clock in?\n");
     printf("default 1800: ");
@@ -191,7 +198,10 @@ static int doAdd()
     if(*str==10)
         stime = 1800;
     else
+    {
         stime = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
     
     printf("what's the time when you clock out?\n");
     printf("default 2000: ");
@@ -199,9 +209,13 @@ static int doAdd()
     if(*str==10)
         etime = 2000;
     else
+    {
         etime = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
 
     changeRecord( 0, date, stime, etime);
+    printf("\n");
 
     return 0;
 }
@@ -218,10 +232,14 @@ static int doDelete()
     if(*str==10)
         delnum = totalRecords;
     else
+    {
         delnum = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
 
     Del(delnum);
     writeToFile();
+    printf("\n");
 
     return 0;
 }
@@ -261,7 +279,10 @@ static int doModify()
     if(*str==10)
         modnum = totalRecords;
     else
+    {
         modnum = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
 
     if(modnum<1||modnum>totalRecords)
         return 0;
@@ -272,7 +293,10 @@ static int doModify()
     if(*str==10)
         stime = 1800;
     else
+    {
         stime = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
     
     printf("what's the time when you clock out?\n");
     printf("default 2000: ");
@@ -280,9 +304,13 @@ static int doModify()
     if(*str==10)
         etime = 2000;
     else
+    {
         etime = atoi(str);
+        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    }
     
     changeRecord( modnum, 0, stime, etime);
+    printf("\n");
 
     return 0;
 }
