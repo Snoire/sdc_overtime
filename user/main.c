@@ -43,10 +43,12 @@ static int Del(int);
 
 int main(int argc, char **argv)
 {
-    volatile int flag = 1;//退出的标志
     int num = 7;
     int searchDate;
     int retParseArg=0;
+    volatile int flag = 1;//退出的标志
+    char str[2]; //只能放1个字符
+
     init();
     if((retParseArg=parseArg(argc,argv)) == 1)
     {
@@ -54,55 +56,56 @@ int main(int argc, char **argv)
         while(flag)
         {    
             num = 7; //如果不恢复初始值，随便输入一个字母将保持上次的结果
+
             printf("(overtime) ");
-            scanf("%d",&num);   //如果不清空输入缓冲区，在这里输入字母，会一直死循环
-            while((clearInput = getchar()) != '\n' && clearInput != EOF); 
-
-            if(num<0||num>6)
-                printf("ops!\n");
+            fgets(str, 2, stdin); //读取1个字符
+            while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+            if(*str==10)
+                num = 'h';
             else
+                num = *str;
+
+            switch(num)
             {
-                switch(num)
-                {
-                    case 0:
-                        printf("0.help 1.add 2.del 3.modify 4.list 5.search 6.exit\n");
-                        break;
-                    case 1:
-                        doAdd(); break;
-                    case 2:
-                        doDelete(); break;
-                    case 3:
-                        doModify(); break;
-                    case 4:
-                        doList(); break;
-                    case 5:
-                        printf("please input the date that you want to search:\n");
-                        scanf("%d",&searchDate);
-                        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+                case 'h':
+                    printf("h: help    l: list     q: quit\n");
+                    printf("a: add     d: delete   m: modify   s: search\n\n");
+                    break;
+                case 'a':
+                    doAdd(); break;
+                case 'd':
+                    doDelete(); break;
+                case 'm':
+                    doModify(); break;
+                case 'l':
+                    doList(); break;
+                case 's':
+                    printf("please input the date that you want to search:\n");
+                    scanf("%d",&searchDate);
+                    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 
-                        searchDate=doSearch(searchDate); //懒得再定义一个变量。。
-                        if(searchDate>=0)
+                    searchDate=doSearch(searchDate); //懒得再定义一个变量。。
+                    if(searchDate>=0)
+                    {
+                        printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
+                        while( ((searchDate+1) < totalRecords) && clkRecord[searchDate+1].mark==(clkRecord[searchDate].mark+1) )  //不能让它访问越界
                         {
+                            searchDate++;
                             printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
-                            while( ((searchDate+1) < totalRecords) && clkRecord[searchDate+1].mark==(clkRecord[searchDate].mark+1) )  //不能让它访问越界
-                            {
-                                searchDate++;
-                                printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
-                            }
                         }
-                        else if(searchDate==-1)
-                            printf("no record found here.\n");
+                    }
+                    else if(searchDate==-1)
+                        printf("no record found here.\n");
 
-                        break;
-                    case 6:
-                        flag = 0;
-                        break;
-                    default:
-                        printf("ops!\n");
-                        break;
-                } 
-            }
-        } 
+                    break;
+                case 'q':
+                    flag = 0;
+                    break;
+                default:
+                    printf("ops!\n");
+                    break;
+            } //switch end..
+        }  //while end
         printf("\nThe end..\n\n");
     }
     if(retParseArg==-1)
@@ -116,7 +119,7 @@ static int welcome()
     printf("It is now at %d:%d on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );
     printf("Still has %d days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
 
-    printf("\nFor help, type \"0\".\n");
+    printf("\nFor help, type \"h\".\n");
 
 //    printf("Please input the time you got off work yesterday: \n");
     return 0;
@@ -164,7 +167,7 @@ static int doList()
             printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
-        printf("totalTime: %d minutes\n",totalTime);
+        printf("totalTime: %d minutes\n\n",totalTime);
     }
 
     return 0;
@@ -172,36 +175,50 @@ static int doList()
 
 static int doAdd()
 {
+    int date, stime, etime;
+    char str[9]; //最多能放8个字符
     printf("what's the date do you want to record?\n");
-    scanf("%d", &clkRecord[totalRecords].date); //忘了 & 取址就会段错误
-    while((clearInput = getchar()) != '\n' && clearInput != EOF);
+    printf("e.g. 20191024, default yesterday: ");
+    fgets(str, 9, stdin); //读取8个字符
+    if(*str==10)
+        date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + tmp->tm_mday-1; //前一天
+    else
+        date = atoi(str);
 
-    clkRecord[totalRecords].mark = 1;
-    
     printf("what's the time when you clock in?\n");
-    scanf("%d", &clkRecord[totalRecords].startime );
-    while((clearInput = getchar()) != '\n' && clearInput != EOF);
+    printf("default 1800: ");
+    fgets(str, 5, stdin); //读取4个字符
+    if(*str==10)
+        stime = 1800;
+    else
+        stime = atoi(str);
     
     printf("what's the time when you clock out?\n");
-    scanf("%d", &clkRecord[totalRecords].endtime );
-    while((clearInput = getchar()) != '\n' && clearInput != EOF);
+    printf("default 2000: ");
+    fgets(str, 5, stdin); //读取4个字符
+    if(*str==10)
+        etime = 2000;
+    else
+        etime = atoi(str);
 
-    calDuration(totalRecords);
-
-    totalRecords++;
-    writeToFile();
+    changeRecord( 0, date, stime, etime);
 
     return 0;
 }
 
 static int doDelete()
 {
+    int delnum;
+    char str[2];
     doList();
     
-    int delnum;
     printf("please input the num that you want to del:\n");
-    scanf("%d",&delnum);
-    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    printf("default the last one: ");
+    fgets(str, 2, stdin); //读取1个字符
+    if(*str==10)
+        delnum = totalRecords;
+    else
+        delnum = atoi(str);
 
     Del(delnum);
     writeToFile();
@@ -234,32 +251,38 @@ static int Del(int delnum)
 
 static int doModify()
 {
+    char str[5];
+    int stime, etime, modnum;
     doList();
 
-    int shour, smin, ehour, emin;
-    int modnum;
     printf("please input the num that you what to modify:\n");
-    scanf("%d",&modnum);
-    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+    printf("default the last one: ");
+    fgets(str, 2, stdin); //读取1个字符
+    if(*str==10)
+        modnum = totalRecords;
+    else
+        modnum = atoi(str);
 
     if(modnum<1||modnum>totalRecords)
         return 0;
     
     printf("what's the time when you clock in?\n");
-    scanf("%d", &clkRecord[modnum-1].startime );
-    while((clearInput = getchar()) != '\n' && clearInput != EOF);
+    printf("default 1800: ");
+    fgets(str, 5, stdin); //读取1个字符
+    if(*str==10)
+        stime = 1800;
+    else
+        stime = atoi(str);
     
     printf("what's the time when you clock out?\n");
-    scanf("%d", &clkRecord[modnum-1].endtime );
-    while((clearInput = getchar()) != '\n' && clearInput != EOF);
-
-    shour = clkRecord[modnum-1].startime/100; 
-    smin = clkRecord[modnum-1].startime%100; 
-    ehour = clkRecord[modnum-1].endtime/100; 
-    emin = clkRecord[modnum-1].endtime%100; 
-    clkRecord[modnum-1].duration = (ehour-shour)*60+emin-smin;
+    printf("default 2000: ");
+    fgets(str, 5, stdin); //读取4个字符
+    if(*str==10)
+        etime = 2000;
+    else
+        etime = atoi(str);
     
-    writeToFile(); 
+    changeRecord( modnum, 0, stime, etime);
 
     return 0;
 }
@@ -295,7 +318,7 @@ static int writeToFile()
 
 static int parseArg(int argc, char **argv)
 {
-    int opt, Mflag=0, date=0, stime=0, etime=0;
+    int opt, Mflag=0, date=0, stime=0, etime=0;  //Mflag 是第一列的编号
     int option_index = 0;
     struct option long_options[]={
         {"help",no_argument, NULL, 'H'},
@@ -358,7 +381,7 @@ static int parseArg(int argc, char **argv)
 static int changeRecord(int Mflag, int date, int stime, int etime)
 {
     int result;
-    if(Mflag==0)
+    if(Mflag==0)  //增加记录
     {
         if(date==0)
         {
@@ -405,7 +428,7 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
         }
         totalRecords ++;
     }
-    else  //修改记录
+    else if(Mflag > 0 && Mflag <= totalRecords)  //修改记录
     {
         Mflag --;
         if(stime==0)

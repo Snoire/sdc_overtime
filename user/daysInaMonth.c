@@ -9,10 +9,10 @@ int daysInaMonth( int year, int month)
     
 //    printf("输入年份：");
 //    scanf("%d", &year);
-//	while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+//    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 //    printf("输入月份："); 
 //    scanf("%d", &month);
-//	while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+//    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 
     switch(month){
         case 1: 
@@ -43,6 +43,6 @@ int daysInaMonth( int year, int month)
             break; 
     } 
 //    printf("天数：%d\n", days); 
-	return days;
+    return days;
 }
 
