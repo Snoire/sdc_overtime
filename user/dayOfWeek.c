@@ -34,14 +34,14 @@ char * transWeek( int w )
 {
     char * pstr;
     switch(w){
-        case 0:  pstr = "Sunday";   break;
         case 1:  pstr = "Monday";   break;
         case 2:  pstr = "Tuesday";  break;
         case 3:  pstr = "Wednesday";break;
         case 4:  pstr = "Thursday"; break;
         case 5:  pstr = "Friday";   break;
         case 6:  pstr = "Saturday"; break;
-        case 7:  pstr = "Sunday";   break;
+        case 7:
+        case 0:  pstr = "Sunday";   break;
     }
 
     return pstr;

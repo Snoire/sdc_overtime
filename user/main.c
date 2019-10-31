@@ -43,8 +43,8 @@ static int Del(int);
 
 int main(int argc, char **argv)
 {
-	volatile int flag = 1;//退出的标志
-	int num = 7;
+    volatile int flag = 1;//退出的标志
+    int num = 7;
     int searchDate;
     int retParseArg=0;
     init();
@@ -52,7 +52,7 @@ int main(int argc, char **argv)
     {
         welcome();
         while(flag)
-        {	
+        {    
             num = 7; //如果不恢复初始值，随便输入一个字母将保持上次的结果
             printf("(overtime) ");
             scanf("%d",&num);   //如果不清空输入缓冲区，在这里输入字母，会一直死循环
@@ -126,25 +126,25 @@ static int init()
 {
     tmp = getCurrentTime();  //初始化的时候就要存储时间信息
 
-	FILE *fp = fopen(filePath,"r");
-	
-	if(fp!=NULL)
+    FILE *fp = fopen(filePath,"r");
+    
+    if(fp!=NULL)
     {
         fscanf(fp, "%2d", &totalRecords);
         fscanf(fp,"%*[^\n]\n"); //读第一行，但不用
-		
-		for(int i = 0 ; i < totalRecords;i++)
+        
+        for(int i = 0 ; i < totalRecords;i++)
         {
             fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
-		}
-	}
+        }
+    }
     else // if file does not exit, create and init it.
     {
-		fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
+        fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
         writeToFile();
-	}
-	fclose(fp);
-	fp=NULL;
+    }
+    fclose(fp);
+    fp=NULL;
 
     return 0;
 }
@@ -152,20 +152,20 @@ static int init()
 static int doList()
 {
     int totalTime = 0;
-	if(totalRecords==0)
+    if(totalRecords==0)
     {
-		printf("nothing..\n");
-	}
+        printf("nothing..\n");
+    }
     else
     {
-		printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
-		for(int i = 0 ; i<totalRecords ;i++)
+        printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
+        for(int i = 0 ; i<totalRecords ;i++)
         {
-			printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
+            printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
-		}
+        }
         printf("totalTime: %d minutes\n",totalTime);
-	}
+    }
 
     return 0;
 }
@@ -196,11 +196,11 @@ static int doAdd()
 
 static int doDelete()
 {
-	doList();
-	
-	int delnum;
-	printf("please input the num that you want to del:\n");
-	scanf("%d",&delnum);
+    doList();
+    
+    int delnum;
+    printf("please input the num that you want to del:\n");
+    scanf("%d",&delnum);
     while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 
     Del(delnum);
@@ -212,9 +212,9 @@ static int doDelete()
 static int Del(int delnum)
 {
     int result=0;
-	if(delnum<1 || delnum > totalRecords)
-		return 0;
-	 
+    if(delnum<1 || delnum > totalRecords)
+        return 0;
+     
     if(delnum==totalRecords)
         totalRecords--;
     else
@@ -239,11 +239,11 @@ static int doModify()
     int shour, smin, ehour, emin;
     int modnum;
     printf("please input the num that you what to modify:\n");
-	scanf("%d",&modnum);
+    scanf("%d",&modnum);
     while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
 
-	if(modnum<1||modnum>totalRecords)
-		return 0;
+    if(modnum<1||modnum>totalRecords)
+        return 0;
     
     printf("what's the time when you clock in?\n");
     scanf("%d", &clkRecord[modnum-1].startime );
