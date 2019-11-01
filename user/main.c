@@ -147,7 +147,8 @@ static int init()
     }
     else // if file does not exit, create and init it.
     {
-        fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
+//        fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
+//        fclose(fp);
         writeToFile();
     }
     fclose(fp);
@@ -171,7 +172,8 @@ static int doList()
             printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
-        printf("totalTime: %d minutes\n\n",totalTime);
+        printf("total time: %d hours and %d minutes\n", totalTime/60, totalTime%60);
+        printf("still needs: %d hours and %d minutes\n\n", (2400-totalTime)/60, (2400-totalTime)%60);
     }
 
     return 0;
@@ -388,10 +390,10 @@ static int parseArg(int argc, char **argv)
                 doList();
                 break;
             case 'V':
-                printf("overtime: version 0.2\n");
+                printf("overtime: version 0.3\n");
                 break;
             case 'v':
-                printf("overtime: version 0.2\n");
+                printf("overtime: version 0.3\n");
                 break;
             default:
                 return -1;
@@ -478,15 +480,16 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
 static int showHelp()
 {
     printf("usage: overtime [-hlv] [-d date] [-s stime] [-e etime] [-M number] [-D number]\n\n");
-    printf("Options:\n\
-  -h, --help           show help\n\
-  -l, --list           show list\n\
-  -v, --version        show version\n\
-  -d date              specify the date to modify\n\
-  -s stime             change stime\n\
-  -e etime             change etime\n\
-  -M number            modify record\n\
-  -D number            Delete record\n\n");
+    printf("Options:\n"
+            "\t-h, --help           show help\n"
+            "\t-l, --list           show list\n"
+            "\t-v, --version        show version\n"
+            "\t-d date              specify the date to modify\n"
+            "\t-s stime             change stime\n"
+            "\t-e etime             change etime\n"
+            "\t-M number            modify record\n"
+            "\t-D number            delete record\n"
+            "\n");
 
     return 0;
 }
