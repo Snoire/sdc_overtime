@@ -132,7 +132,6 @@ static int welcome()
 
     printf("\nFor help, type \"h\".\n");
 
-//    printf("Please input the time you got off work yesterday: \n");
     return 0;
 }
 
@@ -181,6 +180,7 @@ static int doList()
             printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
+        printf("\n");
         printf("total time: %d hours and %d minutes\n", totalTime/60, totalTime%60);
         printf("still needs: %d hours and %d minutes\n\n", (2400-totalTime)/60, (2400-totalTime)%60);
     }
@@ -193,7 +193,7 @@ static int doAdd()
     int date=0, stime, etime;
     int value=0;
     char str[3]; //最多能放2个字符
-    printf("what's the date do you want to record?\n");
+    printf("what's the day do you want to record?\n");
     printf("e.g. 01, default yesterday: ");
 
     for(int i=0; i<2; i++)
@@ -374,7 +374,7 @@ static int writeToFile()
 
 static int parseArg(int argc, char **argv)
 {
-    int opt, Mflag=0, date=0, stime=0, etime=0;  //Mflag 是第一列的编号
+    int opt, number=0, date=0, stime=0, etime=0;  //number 是第一列的编号
     int option_index = 0;
     struct option long_options[]={
         {"help",no_argument, NULL, 'H'},
@@ -398,7 +398,7 @@ static int parseArg(int argc, char **argv)
                 etime = atoi(optarg);
                 break;
             case 'M':
-                Mflag = atoi(optarg);
+                number = atoi(optarg);
                 break;
             case 'D':
                 Del(atoi(optarg));
@@ -414,7 +414,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.6\n");
+                printf("overtime: version 0.7\n");
                 break;
             default:
                 return -1;
@@ -422,17 +422,17 @@ static int parseArg(int argc, char **argv)
     }
     if( (date+stime+etime) !=0) //至少有一个不为0
     {
-        if( changeRecord(Mflag,date,stime,etime) == -1 )
+        if( changeRecord(number,date,stime,etime) == -1 )
             return -2;
     }
 
     return 0;  //返回0的话，就是正常解析选项
 }
 
-static int changeRecord(int Mflag, int date, int stime, int etime)
+static int changeRecord(int number, int date, int stime, int etime)
 {
     int result;
-    if(Mflag==0)  //增加记录
+    if(number==0)  //增加记录
     {
         if(date==0)
         {
@@ -479,18 +479,18 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
         }
         totalRecords ++;
     }
-    else if(Mflag > 0 && Mflag <= totalRecords)  //修改记录
+    else if(number > 0 && number <= totalRecords)  //修改记录
     {
-        Mflag --;
+        number --;
         if(stime==0)
-            clkRecord[Mflag].startime= 1800;
+            clkRecord[number].startime= 1800;
         else
-            clkRecord[Mflag].startime= stime;
+            clkRecord[number].startime= stime;
         if(etime==0)
-            clkRecord[Mflag].endtime= 2000;
+            clkRecord[number].endtime= 2000;
         else
-            clkRecord[Mflag].endtime= etime;
-        calDuration(Mflag);
+            clkRecord[number].endtime= etime;
+        calDuration(number);
     }
     
     writeToFile();
@@ -500,14 +500,14 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
 
 static int showHelp()
 {
-    printf("usage: overtime [-hlv] [-d day] [-s stime] [-e etime] [-M number] [-D number]\n\n");
+    printf("Usage: overtime [-hlv] [-d day] [-s stime] [-e etime] [-M number] [-D number]\n\n");
     printf("Options:\n"
             "\t-h, --help           show help\n"
             "\t-l, --list           show list\n"
             "\t-v, --version        show version\n"
-            "\t-d day               specify the day to modify\n"
-            "\t-s stime             change stime\n"
-            "\t-e etime             change etime\n"
+            "\t-d day               choose the day you want to modify\n"
+            "\t-s stime             change the start time\n"
+            "\t-e etime             change the end time\n"
             "\t-M number            modify record\n"
             "\t-D number            delete record\n"
             "\n");
