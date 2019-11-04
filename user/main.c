@@ -3,10 +3,13 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "dayOfWeek.h"
 #include "daysInaMonth.h"
 #include "getCurrentTime.h"
+
 
 typedef struct clockInRecord{
     int date;
@@ -18,8 +21,12 @@ typedef struct clockInRecord{
 
 CLOCKINRECORD clkRecord[60];
 int totalRecords=0; //总记录数
-char *filePath="data/record.data";
+
+char *filePath="data/";
+char *fileName="data/record.data";
+
 struct tm* tmp;  //保存时间信息
+int pre_date;
 
 char clearInput;
 
@@ -132,8 +139,12 @@ static int welcome()
 static int init()
 {
     tmp = getCurrentTime();  //初始化的时候就要存储时间信息
+    pre_date = ((tmp->tm_year+1900)*100 + tmp->tm_mon+1) *100;
 
-    FILE *fp = fopen(filePath,"r");
+    if ( access(filePath, F_OK) != 0)  //文件夹不存在
+        mkdir(filePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+    FILE *fp = fopen(fileName,"r");
     
     if(fp!=NULL)
     {
@@ -144,14 +155,12 @@ static int init()
         {
             fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
         }
+        fclose(fp); //放在这里就正常了，本来在条件语句后面的，应该是关闭一个已经关闭的文件会发生错误
     }
     else // if file does not exit, create and init it.
     {
-//        fp = fopen(filePath,"w");  //这里为什么要加这一句，下面调用的函数里有这一句啊
-//        fclose(fp);
         writeToFile();
     }
-    fclose(fp);
     fp=NULL;
 
     return 0;
@@ -181,17 +190,36 @@ static int doList()
 
 static int doAdd()
 {
-    int date, stime, etime;
-    char str[9]; //最多能放8个字符
+    int date=0, stime, etime;
+    int value=0;
+    char str[3]; //最多能放2个字符
     printf("what's the date do you want to record?\n");
-    printf("e.g. 20191024, default yesterday: ");
-    fgets(str, 9, stdin); //读取8个字符
-    if(*str==10)
-        date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + tmp->tm_mday-1; //前一天
-    else
+    printf("e.g. 01, default yesterday: ");
+//    fgets(str, 3, stdin); //读取2个字符
+//    if(*str==10)
+//        date = pre_date + tmp->tm_mday-1; //前一天
+//    else
+//    {
+//        date = pre_date + atoi(str);
+//        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+//    }
+    for(int i=0; i<2; i++)
     {
-        date = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        value = getchar();
+        if(i==0 && value == '\n')        //用户输入 \n
+        {
+            date = pre_date + tmp->tm_mday-1; //前一天
+            break;
+        }
+        else if(i==1 && value == '\n')   //用户输入一个数字加换行
+        {
+            date += pre_date;
+            break;
+        }
+        date = date*10 + value;
+        if(i==1)                         //用户输入两个数字
+            date += pre_date;
+            
     }
 
     printf("what's the time when you clock in?\n");
@@ -340,8 +368,8 @@ static int writeToFile()
         {
             fprintf(fp,"%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration );
         }
+        fclose(fp);
     }
-    fclose(fp);
 
     return 0;
 }
@@ -363,6 +391,7 @@ static int parseArg(int argc, char **argv)
         {
             case 'd':
                 date = atoi(optarg); //这里应该判断一下
+                date += pre_date;
                 break;
             case 's':
                 stime = atoi(optarg);
@@ -378,22 +407,16 @@ static int parseArg(int argc, char **argv)
                 writeToFile();
                 return 0;
             case 'H':
-                showHelp();
-                break;
             case 'h':
                 showHelp();
                 break;
             case 'L':
-                doList();
-                break;
             case 'l':
                 doList();
                 break;
             case 'V':
-                printf("overtime: version 0.3\n");
-                break;
             case 'v':
-                printf("overtime: version 0.3\n");
+                printf("overtime: version 0.4\n");
                 break;
             default:
                 return -1;
