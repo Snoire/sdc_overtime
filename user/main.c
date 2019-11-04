@@ -219,7 +219,6 @@ static int doAdd()
         date = date*10 + value;
         if(i==1)                         //用户输入两个数字
             date += pre_date;
-            
     }
 
     printf("what's the time when you clock in?\n");
@@ -360,7 +359,7 @@ static int doSearch(int searchDate)
 static int writeToFile()
 {
     sort();
-    FILE *fp = fopen(filePath,"w");
+    FILE *fp = fopen(fileName,"w+");
     if(fp!=NULL)
     {
         fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
@@ -370,6 +369,8 @@ static int writeToFile()
         }
         fclose(fp);
     }
+    else
+        printf("open file error!\n");
 
     return 0;
 }
@@ -416,7 +417,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.4\n");
+                printf("overtime: version 0.5\n");
                 break;
             default:
                 return -1;
