@@ -195,20 +195,17 @@ static int doAdd()
     char str[3]; //最多能放2个字符
     printf("what's the date do you want to record?\n");
     printf("e.g. 01, default yesterday: ");
-//    fgets(str, 3, stdin); //读取2个字符
-//    if(*str==10)
-//        date = pre_date + tmp->tm_mday-1; //前一天
-//    else
-//    {
-//        date = pre_date + atoi(str);
-//        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
-//    }
+
     for(int i=0; i<2; i++)
     {
         value = getchar();
         if(i==0 && value == '\n')        //用户输入 \n
         {
-            date = pre_date + tmp->tm_mday-1; //前一天
+            if(tmp->tm_mday==1)
+                date = pre_date + tmp->tm_mday;
+            else
+                date = pre_date + tmp->tm_mday-1; //前一天
+
             break;
         }
         else if(i==1 && value == '\n')   //用户输入一个数字加换行
@@ -417,7 +414,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.5\n");
+                printf("overtime: version 0.6\n");
                 break;
             default:
                 return -1;
@@ -440,9 +437,9 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
         if(date==0)
         {
             if(tmp->tm_mday==1)
-                return -1; //没有前一天
+                date = pre_date + tmp->tm_mday;
             else
-                date = (tmp->tm_year+1900)*10000 + (tmp->tm_mon+1)*100 + tmp->tm_mday-1; //前一天
+                date = pre_date + tmp->tm_mday-1; //前一天
         }
 
         result = doSearch(date);
@@ -503,12 +500,12 @@ static int changeRecord(int Mflag, int date, int stime, int etime)
 
 static int showHelp()
 {
-    printf("usage: overtime [-hlv] [-d date] [-s stime] [-e etime] [-M number] [-D number]\n\n");
+    printf("usage: overtime [-hlv] [-d day] [-s stime] [-e etime] [-M number] [-D number]\n\n");
     printf("Options:\n"
             "\t-h, --help           show help\n"
             "\t-l, --list           show list\n"
             "\t-v, --version        show version\n"
-            "\t-d date              specify the date to modify\n"
+            "\t-d day               specify the day to modify\n"
             "\t-s stime             change stime\n"
             "\t-e etime             change etime\n"
             "\t-M number            modify record\n"
