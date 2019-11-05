@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <time.h>
@@ -22,8 +23,7 @@ typedef struct clockInRecord{
 CLOCKINRECORD clkRecord[60];
 int totalRecords=0; //总记录数
 
-char *filePath="data/";
-char *fileName="data/record.data";
+char filePath[7+32+18]= {0};
 
 struct tm* tmp;  //保存时间信息
 int pre_date;
@@ -137,13 +137,21 @@ static int welcome()
 
 static int init()
 {
+    char dataDir[7+32+6]= {0};
+
     tmp = getCurrentTime();  //初始化的时候就要存储时间信息
     pre_date = ((tmp->tm_year+1900)*100 + tmp->tm_mon+1) *100;
 
-    if ( access(filePath, F_OK) != 0)  //文件夹不存在
-        mkdir(filePath, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    char *homevar = getenv("HOME"); 
+    strcat (filePath, homevar);
+    strcat (filePath, "/.data/record.data");
+    strcat (dataDir, homevar);
+    strcat (dataDir, "/.data");
 
-    FILE *fp = fopen(fileName,"r");
+    if ( access(dataDir, F_OK) != 0)  //文件夹不存在
+        mkdir(dataDir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+    FILE *fp = fopen(filePath,"r");
     
     if(fp!=NULL)
     {
@@ -356,7 +364,7 @@ static int doSearch(int searchDate)
 static int writeToFile()
 {
     sort();
-    FILE *fp = fopen(fileName,"w+");
+    FILE *fp = fopen(filePath,"w+");
     if(fp!=NULL)
     {
         fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   

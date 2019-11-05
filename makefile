@@ -8,7 +8,7 @@ objs += user/getCurrentTime.o
 
 
 all : overtime
-.PHONY : all clean cscope
+.PHONY : all clean cscope install
 
 overtime : $(objs)
 	cc -o $@ $^
@@ -20,6 +20,12 @@ user/daysInaMonth.o: user/daysInaMonth.c
 	cc -c $^ -o $@
 user/getCurrentTime.o: user/getCurrentTime.c
 	cc -c $^ -o $@
+
+cscope :
+	cscope -Rbq
+
+install : all
+	install -c overtime /usr/local/bin/overtime
 
 clean :
 	@echo 'clean up redundant files..'
