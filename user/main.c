@@ -37,7 +37,8 @@ static int doList();
 static int doAdd();
 static int doDelete();
 static int doModify();
-static int doSearch(int);
+static int doSearch();
+static int search(int);
 static int writeToFile();
 static int parseArg(int, char **);
 static int showHelp();
@@ -51,7 +52,6 @@ static int Del(int);
 int main(int argc, char **argv)
 {
     int num;
-    int searchDate;
     int retParseArg=0;
     volatile int flag = 1;//退出的标志
     char str[2]; //只能放1个字符
@@ -89,32 +89,13 @@ int main(int argc, char **argv)
                 case 'l':
                     doList(); break;
                 case 's':
-                    printf("please input the date that you want to search:\n");
-                    scanf("%d",&searchDate);
-                    while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
-
-                    searchDate=doSearch(searchDate); //懒得再定义一个变量。。
-                    if(searchDate>=0)
-                    {
-                        printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
-                        while( ((searchDate+1) < totalRecords) && clkRecord[searchDate+1].mark==(clkRecord[searchDate].mark+1) )  //不能让它访问越界
-                        {
-                            searchDate++;
-                            printf("%2d%10d%4d%7d%7d%7d\n",searchDate+1,clkRecord[searchDate].date,clkRecord[searchDate].mark,clkRecord[searchDate].startime,clkRecord[searchDate].endtime,clkRecord[searchDate].duration);  //用 %s 输出 int 会发生段错误
-                        }
-                    }
-                    else if(searchDate==-1)
-                        printf("no record found here.\n");
-
-                    break;
+                    doSearch(); break;
                 case 'q':
-                    flag = 0;
-                    break;
+                    flag = 0; break;
                 case 0:
                     break;
                 default:
-                    printf("ops!\n");
-                    break;
+                    printf("invalid option.\n"); break;
             } //switch end..
         }  //while end
         printf("\nThe end..\n\n");
@@ -127,7 +108,7 @@ int main(int argc, char **argv)
 static int welcome()
 {
     printf("Welcome to overtime!\n");
-    printf("It is now at %d:%d on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );
+    printf("It is now at %d:%.2d on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );  // %.2d 确保它是两位数，不足补0
     printf("Still has %d days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
 
     printf("\nFor help, type \"h\".\n");
@@ -221,9 +202,12 @@ static int doAdd()
             date += pre_date;
             break;
         }
-        date = date*10 + value;
+        date = date*10 + value-48;
         if(i==1)                         //用户输入两个数字
+        {
             date += pre_date;
+            while((clearInput = getchar()) != '\n' && clearInput != EOF); //这种情况下第三个字符及以后的字符还在缓冲区
+        }
     }
 
     printf("what's the time when you clock in?\n");
@@ -288,7 +272,7 @@ static int Del(int delnum)
         totalRecords--;
     else
     {
-        result = doSearch(clkRecord[delnum-1].date);
+        result = search(clkRecord[delnum-1].date);
         while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
             result++;
         for(int i = delnum; i < result; i++)
@@ -349,7 +333,54 @@ static int doModify()
     return 0;
 }
 
-static int doSearch(int searchDate)
+static int doSearch()
+{
+    int value=0, searchDate=0, retNum;
+    printf("which day do you want to search: ");
+
+    for(int i=0; i<2; i++)
+    {
+        value = getchar();
+        if(i==0 && value == '\n')        //用户输入 \n
+        {
+            if(tmp->tm_mday==1)
+                searchDate = pre_date + tmp->tm_mday;
+            else
+                searchDate = pre_date + tmp->tm_mday-1; //前一天
+
+            break;
+        }
+        else if(i==1 && value == '\n')   //用户输入一个数字加换行
+        {
+            searchDate += pre_date;
+            break;
+        }
+
+        searchDate = searchDate*10 + value-48;
+        if(i==1)                         //用户输入两个数字
+        {
+            searchDate += pre_date;
+            while((clearInput = getchar()) != '\n' && clearInput != EOF); //这种情况下第三个字符及以后的字符还在缓冲区
+        }
+    }
+
+    retNum=search(searchDate);
+    if(retNum>=0)
+    {
+        printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
+        while( ((retNum+1) < totalRecords) && clkRecord[retNum+1].mark==(clkRecord[retNum].mark+1) )  //不能让它访问越界
+        {
+            retNum++;
+            printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
+        }
+    }
+    else if(retNum==-1)
+        printf("no record found in %d.\n",searchDate);
+
+    return 0;
+}
+
+static int search(int searchDate)
 {
     int i=0;
     for(i; i< totalRecords; i++)
@@ -422,7 +453,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.7\n");
+                printf("overtime: version 0.8\n");
                 break;
             default:
                 return -1;
@@ -450,7 +481,7 @@ static int changeRecord(int number, int date, int stime, int etime)
                 date = pre_date + tmp->tm_mday-1; //前一天
         }
 
-        result = doSearch(date);
+        result = search(date);
         if(result==-1)  //未找到记录，在最后添加
         {
             clkRecord[totalRecords].date = date;
