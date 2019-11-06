@@ -1,0 +1,81 @@
+'\" t
+.\" Man page for overtime
+.\"
+.\" 191106_160323
+.\"
+.pc
+.TH OVERTIME 1 "2019-11-06" "0.8" "User commands"
+.SH NAME
+overtime \- record overtime
+.SH SYNOPSIS
+.B overtime
+.B [\-hlv]
+.BI [\-d \ day ]
+.BI [\-s \ stime ]
+.BI [\-e \ etime ]
+.BI [\-M \ number ]
+.BI [\-D \ number ]
+.SH DESCRIPTION
+\fBovertime\fR is used to record overtime.
+.PP
+By default, \fBovertime\fR will enter interactive mode.
+To record overtime with a single command, use the
+\fB\-d\fR, \fB-s\fR and \fB-e\fR options.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\^\-help
+View the usage help display.
+.TP
+.BR \-l ", " \-\^\-list
+List the overtime records.
+.TP
+.BR \-v ", " \-\^\-version
+Output the version number of
+.B overtime
+and exit.
+.TP
+.BR \-d \ \ \fIday\fR
+Select the day you want to add or modify and search the list based on this option.
+Default is the previous day. (If it is the first day of each month,
+the default is the current day.)
+.TP
+.BR \-s \ \ \fIstime\fR
+Record accurate starting time.
+Default is 18:00. 
+.TP
+.BR \-e \ \ \fIetime\fR
+Record accurate ending time.
+Default is 20:00. 
+.TP
+.BR \-M \ \ \fInumber\fR
+Select the serial number of the entry to be modified.
+Default is the last one.
+.TP
+.BR \-D \ \ \fInumber\fR
+Select the serial number of the entry to be deleted.
+Default is the last one.
+.SH EXAMPLES
+.TP
+\fBovertime\fR
+Enter interactive mode.
+.TP
+.BI overtime\ \-h
+View the usage help display.
+.TP
+.BI overtime\ \-e \ 2023
+If you left work at 8:23 p.m. last night and want to write down this record today, just execute the command above.
+.TP
+.BI "overtime -d" "01" " \-e"2156 
+If you left work at 9:56 p.m. on the 3rd of this month and want to write down this record today, just execute the command above.
+.TP
+.BI "overtime -D" 12
+Delete the 12th record.
+.TP
+.BI "overtime -M" "05" "-s" "0830 " "-e" \ 2156 
+Modify the 5th record, set the starting time to 8:30, and the ending time to 9:00.
+.SH FILES
+.TP
+.I ~/.data/record.data
+Record data file.
+
+
