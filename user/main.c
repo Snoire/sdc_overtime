@@ -99,7 +99,7 @@ int main(int argc, char **argv)
                     printf("invalid option.\n"); break;
             } //switch end..
         }  //while end
-        printf("\nThe end..\n\n");
+        printf("\nbye..\n\n");
     }
     if(retParseArg==-1)
         showHelp();
@@ -168,10 +168,12 @@ static int doList()
     }
     else
     {
-        printf("%2d%9s   %4s%7s%7s%7s\n",totalRecords,"Date","m","stime","etime","dur");
+//        printf("%2d%9s   %4s%7s%7s%7s\n",totalRecords,"Date","m","stime","etime","dur");
+        printf("%11s   %7s%7s%7s\n","Date","stime","etime","dur");
         for(int i = 0 ; i<totalRecords ;i++)
         {
-            printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].mark,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
+//            printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].mark,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
+            printf("%2d%6d/%.2d/%.2d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
         printf("\n");
@@ -391,7 +393,6 @@ static int doSearch()
         do
         {
             printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",retNum+1,clkRecord[retNum].date/10000,clkRecord[retNum].date/100%100,clkRecord[retNum].date%100,clkRecord[retNum].mark,clkRecord[retNum].startime/100,clkRecord[retNum].startime%100,clkRecord[retNum].endtime/100,clkRecord[retNum].endtime%100,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
-//            printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
             retNum++;
             
         }while( ((retNum) < totalRecords) && clkRecord[retNum].mark==(clkRecord[retNum-1].mark+1) );  //不能让它访问越界
@@ -476,7 +477,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.0\n");
+                printf("overtime: version 1.0.1\n");
                 break;
             default:
                 return -1;
