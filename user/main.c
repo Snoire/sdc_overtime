@@ -29,7 +29,6 @@ char filePath[70] = "";
 struct tm* tmp;  //保存时间信息
 int pre_date;
 
-char clearInput;
 
 //声明函数
 static int welcome();
@@ -73,7 +72,7 @@ int main(int argc, char **argv)
             else
             {
                 num = *str;
-                while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+                scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
             }
 
             switch(num)
@@ -212,31 +211,39 @@ static int doAdd()
         if(i==1)                         //用户输入两个数字
         {
             date += pre_date;
-            while((clearInput = getchar()) != '\n' && clearInput != EOF); //这种情况下第三个字符及以后的字符还在缓冲区
+            scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
         }
     }
 
     printf("what's the time when you clock in?\n");
-    printf("e.g. 1800, default 18:00: ");
+    printf("e.g. 2, 02 or 1802, default 18:00: ");
     fgets(str, 5, stdin); //读取4个字符
-    if(*str==10)
+    if(*str==10)  //第一个字符是换行，也就是说直接按了换行键
         stime = 1800;
-    else
+    else if( *(str+1)=='\n' || *(str+2)=='\n' )  //第二个或第三个字符是换行，也就是说只读取了一或两个字符
+        stime = 18*100 + atoi(str);
+    else if( *(str+3)!='\n' && *(str+3)!=0 )  //只有在第四个字符既不是\n，也不是\0的时候，也就是说缓冲区里有多余的字符时，才能去清空缓冲区
     {
         stime = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c"); //在下次读取前清空缓冲区，如果缓冲区里有东西，这里就会卡住
     }
+    else  //输入三个字符
+        stime = atoi(str);
     
     printf("what's the time when you clock out?\n");
-    printf("e.g. 2002, default 20:00: ");
+    printf("e.g. 4, 04 or 2004, default 20:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
         etime = 2000;
-    else
+    else if( *(str+1)=='\n' || *(str+2)=='\n' )
+        etime = 20*100 + atoi(str);
+    else if( *(str+3)!='\n' && *(str+3)!=0 )
     {
         etime = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
     }
+    else  //输入三个字符
+        etime = atoi(str);
 
     changeRecord( 0, date, stime, etime);
     printf("\n");
@@ -258,7 +265,7 @@ static int doDelete()
     else
     {
         delnum = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
     }
 
     Del(delnum);
@@ -305,33 +312,41 @@ static int doModify()
     else
     {
         modnum = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
     }
 
     if(modnum<1||modnum>totalRecords)
         return 0;
     
     printf("what's the time when you clock in?\n");
-    printf("e.g. 1800, default 18:00: ");
-    fgets(str, 5, stdin); //读取1个字符
-    if(*str==10)
+    printf("e.g. 2, 02 or 1802, default 18:00: ");
+    fgets(str, 5, stdin); //读取4个字符
+    if(*str==10)  //直接按换行键
         stime = 1800;
-    else
+    else if( *(str+1)=='\n' || *(str+2)=='\n' )  //只读取了一或两个字符
+        stime = 18*100 + atoi(str);
+    else if( *(str+3)!='\n' && *(str+3)!=0 )  //缓冲区里有多余的字符
     {
         stime = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c");
     }
+    else  //输入三个字符
+        stime = atoi(str);
     
     printf("what's the time when you clock out?\n");
-    printf("e.g. 2004, default 20:00: ");
+    printf("e.g. 4, 04 or 2004, default 20:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
         etime = 2000;
-    else
+    else if( *(str+1)=='\n' || *(str+2)=='\n' )
+        etime = 20*100 + atoi(str);
+    else if( *(str+3)!='\n' && *(str+3)!=0 )
     {
         etime = atoi(str);
-        while((clearInput = getchar()) != '\n' && clearInput != EOF); //在下次读取前清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
     }
+    else  //输入三个字符
+        etime = atoi(str);
     
     changeRecord( modnum, 0, stime, etime);
     printf("\n");
@@ -366,7 +381,7 @@ static int doSearch()
         if(i==1)                         //用户输入两个数字
         {
             searchDate += pre_date;
-            while((clearInput = getchar()) != '\n' && clearInput != EOF); //这种情况下第三个字符及以后的字符还在缓冲区
+            scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
         }
     }
 
@@ -461,7 +476,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.9\n");
+                printf("overtime: version 1.0.0\n");
                 break;
             default:
                 return -1;
