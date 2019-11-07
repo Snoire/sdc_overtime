@@ -189,7 +189,7 @@ static int doAdd()
     int value=0;
     char str[3]; //最多能放2个字符
     printf("what's the day do you want to record?\n");
-    printf("e.g. 01, default yesterday: ");
+    printf("e.g. 1, default yesterday: ");
 
     for(int i=0; i<2; i++)
     {
@@ -217,7 +217,7 @@ static int doAdd()
     }
 
     printf("what's the time when you clock in?\n");
-    printf("default 1800: ");
+    printf("e.g. 1800, default 18:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
         stime = 1800;
@@ -228,7 +228,7 @@ static int doAdd()
     }
     
     printf("what's the time when you clock out?\n");
-    printf("default 2000: ");
+    printf("e.g. 2002, default 20:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
         etime = 2000;
@@ -312,7 +312,7 @@ static int doModify()
         return 0;
     
     printf("what's the time when you clock in?\n");
-    printf("default 1800: ");
+    printf("e.g. 1800, default 18:00: ");
     fgets(str, 5, stdin); //读取1个字符
     if(*str==10)
         stime = 1800;
@@ -323,7 +323,7 @@ static int doModify()
     }
     
     printf("what's the time when you clock out?\n");
-    printf("default 2000: ");
+    printf("e.g. 2004, default 20:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
         etime = 2000;
@@ -461,7 +461,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 0.8\n");
+                printf("overtime: version 0.9\n");
                 break;
             default:
                 return -1;
