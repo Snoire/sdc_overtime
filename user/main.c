@@ -372,12 +372,14 @@ static int doSearch()
     retNum=search(searchDate);
     if(retNum>=0)
     {
-        printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
-        while( ((retNum+1) < totalRecords) && clkRecord[retNum+1].mark==(clkRecord[retNum].mark+1) )  //不能让它访问越界
+        do
         {
+            printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",retNum+1,clkRecord[retNum].date/10000,clkRecord[retNum].date/100%100,clkRecord[retNum].date%100,clkRecord[retNum].mark,clkRecord[retNum].startime/100,clkRecord[retNum].startime%100,clkRecord[retNum].endtime/100,clkRecord[retNum].endtime%100,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
+//            printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
             retNum++;
-            printf("%2d%10d%4d%7d%7d%7d\n",retNum+1,clkRecord[retNum].date,clkRecord[retNum].mark,clkRecord[retNum].startime,clkRecord[retNum].endtime,clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
-        }
+            
+        }while( ((retNum) < totalRecords) && clkRecord[retNum].mark==(clkRecord[retNum-1].mark+1) );  //不能让它访问越界
+
     }
     else if(retNum==-1)
         printf("no record found in %d.\n",searchDate);
