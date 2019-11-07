@@ -119,6 +119,7 @@ static int welcome()
 
 static int init()
 {
+    int year, mon, day, hour1, hour2, min1, min2;
     char dataDir[7+32+6]= {0};
 
     tmp = getCurrentTime();  //初始化的时候就要存储时间信息
@@ -142,7 +143,10 @@ static int init()
         
         for(int i = 0 ; i < totalRecords;i++)
         {
-            fscanf(fp,"%*2d%10d%4d%7d%7d%7d\n",&clkRecord[i].date,&clkRecord[i].mark,&clkRecord[i].startime,&clkRecord[i].endtime,&clkRecord[i].duration );
+            fscanf(fp,"%*2d%6d/%2d/%2d%4d  %2d:%2d  %2d:%2d%7d\n",&year,&mon,&day,&clkRecord[i].mark,&hour1,&min1,&hour2,&min2,&clkRecord[i].duration );
+            clkRecord[i].date = year*10000+mon*100+day;
+            clkRecord[i].startime = hour1*100+min1;
+            clkRecord[i].endtime = hour2*100+min2;
         }
         fclose(fp); //放在这里就正常了，本来在条件语句后面的，应该是关闭一个已经关闭的文件会发生错误
     }
@@ -164,10 +168,10 @@ static int doList()
     }
     else
     {
-        printf("%2d%10s%4s%7s%7s%7s\n",totalRecords,"date","m","stime","etime","dur");
+        printf("%2d%9s   %4s%7s%7s%7s\n",totalRecords,"Date","m","stime","etime","dur");
         for(int i = 0 ; i<totalRecords ;i++)
         {
-            printf("%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
+            printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].mark,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
         printf("\n");
@@ -399,10 +403,10 @@ static int writeToFile()
     FILE *fp = fopen(filePath,"w+");
     if(fp!=NULL)
     {
-        fprintf(fp,"%2d%10s%4s%7s%7s%7s\n", totalRecords, "date", "m", "stime","etime","dur");   
+        fprintf(fp,"%2d%9s   %4s%7s%7s%7s\n", totalRecords, "Date", "m", "stime","etime","dur");   
         for(int i = 0; i< totalRecords; i++)
         {
-            fprintf(fp,"%2d%10d%4d%7d%7d%7d\n",i+1,clkRecord[i].date,clkRecord[i].mark,clkRecord[i].startime,clkRecord[i].endtime,clkRecord[i].duration );
+            fprintf(fp,"%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].mark,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration );
         }
         fclose(fp);
     }
