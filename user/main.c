@@ -46,6 +46,7 @@ static int changeRecord(int,int,int,int);
 static int calDuration(int);
 static int sort();
 static int Del(int);
+static int validRd(CLOCKINRECORD *);
 
 
 
@@ -500,7 +501,7 @@ static int changeRecord(int number, int date, int stime, int etime)
         {
             while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
                 result++;
-            for(int i=totalRecords-1; i> result+1; i--) //向后腾出空间
+            for(int i=totalRecords; i> result+1; i--) //向后腾出空间
             {
                 clkRecord[i] = clkRecord[i-1];
             }
@@ -579,6 +580,23 @@ static int sort()
                 clkRecord[j] = recordTmp;
             }
         }
+    }
+
+    return 0;
+}
+
+static int validRd( CLOCKINRECORD * recordTmp )
+{
+//    int i=0;
+//    i = search(recordTmp->date);
+    
+    if( (recordTmp->date %1000000) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) )
+        return -1;   //日期超出范围
+    else if( recordTmp->startime >= recordTmp->endtime)
+        return -2;   //开始时间居然比结束时间还晚?!
+    else
+    {
+
     }
 
     return 0;
