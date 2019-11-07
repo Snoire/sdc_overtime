@@ -23,7 +23,8 @@ typedef struct clockInRecord{
 CLOCKINRECORD clkRecord[60];
 int totalRecords=0; //总记录数
 
-char filePath[7+32+18]= {0};
+char filePath[70] = "";
+//char filePath[7+32+18]= {0};
 
 struct tm* tmp;  //保存时间信息
 int pre_date;
@@ -126,10 +127,10 @@ static int init()
     pre_date = ((tmp->tm_year+1900)*100 + tmp->tm_mon+1) *100;
 
     char *homevar = getenv("HOME"); 
-    strcat (filePath, homevar);
-    strcat (filePath, "/.data/record.data");
     strcat (dataDir, homevar);
     strcat (dataDir, "/.data");
+    
+    sprintf(filePath, "%s/.data/record_%d.data", homevar, (tmp->tm_year+1900)*100 + tmp->tm_mon+1);
 
     if ( access(dataDir, F_OK) != 0)  //文件夹不存在
         mkdir(dataDir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
