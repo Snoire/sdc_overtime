@@ -477,7 +477,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.1\n");
+                printf("overtime: version 1.0.2\n");
                 break;
             default:
                 return -1;
@@ -495,6 +495,12 @@ static int parseArg(int argc, char **argv)
 static int changeRecord(int number, int date, int stime, int etime)
 {
     int result;
+
+    if(stime==0)
+        stime = 1800;
+    if(etime==0)
+        etime = 2000;
+
     if(number==0)  //增加记录
     {
         if(date==0)
@@ -510,14 +516,8 @@ static int changeRecord(int number, int date, int stime, int etime)
         {
             clkRecord[totalRecords].date = date;
             clkRecord[totalRecords].mark = 1;
-            if(stime==0)
-                clkRecord[totalRecords].startime = 1800;
-            else
-                clkRecord[totalRecords].startime = stime;
-            if(etime==0)
-                clkRecord[totalRecords].endtime = 2000;
-            else
-                clkRecord[totalRecords].endtime = etime;
+            clkRecord[totalRecords].startime = stime;
+            clkRecord[totalRecords].endtime = etime;
             calDuration(totalRecords);
         }
         else  //找到记录，紧随其后添加
@@ -530,14 +530,8 @@ static int changeRecord(int number, int date, int stime, int etime)
             }
             clkRecord[result+1].date = date;
             clkRecord[result+1].mark = clkRecord[result].mark + 1;
-            if(stime==0)
-                clkRecord[result+1].startime= 1800;
-            else
-                clkRecord[result+1].startime= stime;
-            if(etime==0)
-                clkRecord[result+1].endtime= 2000;
-            else
-                clkRecord[result+1].endtime= etime;
+            clkRecord[result+1].startime= stime;
+            clkRecord[result+1].endtime= etime;
             calDuration(result+1);
         }
         totalRecords ++;
@@ -545,14 +539,8 @@ static int changeRecord(int number, int date, int stime, int etime)
     else if(number > 0 && number <= totalRecords)  //修改记录
     {
         number --;
-        if(stime==0)
-            clkRecord[number].startime= 1800;
-        else
-            clkRecord[number].startime= stime;
-        if(etime==0)
-            clkRecord[number].endtime= 2000;
-        else
-            clkRecord[number].endtime= etime;
+        clkRecord[number].startime= stime;
+        clkRecord[number].endtime= etime;
         calDuration(number);
     }
     
