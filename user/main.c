@@ -287,10 +287,10 @@ static int Del(int delnum)
         totalRecords--;
     else
     {
-        result = search(clkRecord[delnum-1].date);
+        result = delnum -1;  //要删除的记录的下标（从0开始）
         while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
             result++;
-        for(int i = delnum; i < result; i++)
+        for(int i = delnum -1; i < result; i++)
             clkRecord[i+1].mark --;
 
         for(int i = delnum; i <totalRecords;i++)
@@ -477,7 +477,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.2\n");
+                printf("overtime: version 1.0.3\n");
                 break;
             default:
                 return -1;
