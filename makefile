@@ -8,7 +8,7 @@ objs += user/getCurrentTime.o
 
 
 all : overtime
-.PHONY : all clean cscope install
+.PHONY : all clean cscope install gdb
 
 overtime : $(objs)
 	cc -o $@ $^
@@ -23,6 +23,9 @@ user/getCurrentTime.o: user/getCurrentTime.c
 
 cscope :
 	cscope -Rbq
+
+gdb : all
+	cc -o user/main.o -c -g user/main.c $(CFLAGS)
 
 install : all
 	install -c overtime /usr/local/bin

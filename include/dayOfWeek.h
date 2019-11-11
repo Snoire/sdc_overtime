@@ -1,2 +1,2 @@
-int dayOfWeek(int,int,int);
+int dayOfWeek(int);
 char * transWeek(int);

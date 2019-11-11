@@ -187,7 +187,7 @@ static int doList()
 static int doAdd()
 {
     int date=0, stime, etime;
-    int value=0;
+    int value=0, dayofw = 0;
     char str[3]; //最多能放2个字符
     printf("what's the day do you want to record?\n");
     printf("e.g. 1, default yesterday: ");
@@ -197,10 +197,15 @@ static int doAdd()
         value = getchar();
         if(i==0 && value == '\n')        //用户输入 \n
         {
+            dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
             if(tmp->tm_mday==1)
                 date = pre_date + tmp->tm_mday;
+            else if( dayofw == 0)        //星期天
+                date = pre_date + tmp->tm_mday-3; //前一个工作日
+            else if( dayofw == 6)        //星期六
+                date = pre_date + tmp->tm_mday-2; //前一个工作日
             else
-                date = pre_date + tmp->tm_mday-1; //前一天
+                date = pre_date + tmp->tm_mday-1; //前一个工作日
 
             break;
         }
@@ -247,6 +252,7 @@ static int doAdd()
     else  //输入三个字符
         etime = atoi(str);
 
+    printf("date=%d, stime=%d, etime=%d\n",date,stime,etime);
     changeRecord( 0, date, stime, etime);
     printf("\n");
 
@@ -370,7 +376,6 @@ static int doSearch()
                 searchDate = pre_date + tmp->tm_mday;
             else
                 searchDate = pre_date + tmp->tm_mday-1; //前一天
-
             break;
         }
         else if(i==1 && value == '\n')   //用户输入一个数字加换行
@@ -477,7 +482,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.3\n");
+                printf("overtime: version 1.0.4\n");
                 break;
             default:
                 return -1;
@@ -498,8 +503,13 @@ static int changeRecord(int number, int date, int stime, int etime)
 
     if(stime==0)
         stime = 1800;
+    else if(stime < 100)
+        stime += 1800;
+
     if(etime==0)
         etime = 2000;
+    else if(etime < 100)
+        etime += 2000;
 
     if(number==0)  //增加记录
     {
@@ -512,19 +522,28 @@ static int changeRecord(int number, int date, int stime, int etime)
         }
 
         result = search(date);
+        totalRecords ++;
+
         if(result==-1)  //未找到记录，在最后添加
         {
-            clkRecord[totalRecords].date = date;
-            clkRecord[totalRecords].mark = 1;
-            clkRecord[totalRecords].startime = stime;
-            clkRecord[totalRecords].endtime = etime;
-            calDuration(totalRecords);
+            clkRecord[totalRecords-1].date = date;
+            clkRecord[totalRecords-1].mark = 1;
+            clkRecord[totalRecords-1].startime = stime;
+            clkRecord[totalRecords-1].endtime = etime;
+            calDuration(totalRecords-1);
+
+            int ret = validRd(&clkRecord[totalRecords-1]);
+            if(  ret < 0 )
+            {
+                printf("date format error! ret = %d\n", ret);
+                totalRecords--;  //把最后一条排除在外，相当于删掉了
+            }
         }
         else  //找到记录，紧随其后添加
         {
-            while( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
+            while( ((result+1) < totalRecords-1) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
                 result++;
-            for(int i=totalRecords; i> result+1; i--) //向后腾出空间
+            for(int i=totalRecords-1; i> result+1; i--) //向后腾出空间
             {
                 clkRecord[i] = clkRecord[i-1];
             }
@@ -533,15 +552,31 @@ static int changeRecord(int number, int date, int stime, int etime)
             clkRecord[result+1].startime= stime;
             clkRecord[result+1].endtime= etime;
             calDuration(result+1);
+
+            if( validRd(&clkRecord[result+1]) < 0 )
+            {
+                printf("date format error!\n");
+                Del(result+2);
+            }
         }
-        totalRecords ++;
     }
     else if(number > 0 && number <= totalRecords)  //修改记录
     {
         number --;
-        clkRecord[number].startime= stime;
-        clkRecord[number].endtime= etime;
-        calDuration(number);
+//        clkRecord[number].startime= stime;
+//        clkRecord[number].endtime= etime;
+//        calDuration(number);
+
+        clkRecord[totalRecords] = clkRecord[number];  //clkRecord[totalRecords] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
+        clkRecord[totalRecords].startime = stime;
+        clkRecord[totalRecords].endtime = etime;
+        if( validRd(&clkRecord[totalRecords]) >= 0 )
+        {
+            clkRecord[number] = clkRecord[totalRecords];
+            calDuration(number);
+        }
+        else
+            printf("date format error!\n");
     }
     
     writeToFile();
@@ -601,7 +636,7 @@ static int validRd( CLOCKINRECORD * recordTmp )
 //    int i=0;
 //    i = search(recordTmp->date);
     
-    if( (recordTmp->date %1000000) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) )
+    if( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
         return -1;   //日期超出范围
     else if( recordTmp->startime >= recordTmp->endtime)
         return -2;   //开始时间居然比结束时间还晚?!
