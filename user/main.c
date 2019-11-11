@@ -11,6 +11,8 @@
 #include "daysInaMonth.h"
 #include "getCurrentTime.h"
 
+#define COLOR_CYAN    "\x1b[36m"
+#define COLOR_RESET   "\x1b[0m"
 
 typedef struct clockInRecord{
     int date;
@@ -65,7 +67,7 @@ int main(int argc, char **argv)
         {    
             num = 0; //如果不恢复初始值，随便输入一个字母将保持上次的结果
 
-            printf("(overtime) ");
+            printf( COLOR_CYAN "(overtime) " COLOR_RESET );
             fgets(str, 2 , stdin); //读取1个字符
             if(*str==10)
                 num = 0;
@@ -109,8 +111,8 @@ int main(int argc, char **argv)
 static int welcome()
 {
     printf("Welcome to overtime!\n");
-    printf("It is now at %d:%.2d on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );  // %.2d 确保它是两位数，不足补0
-    printf("Still has %d days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
+    printf("It is now at " "\x1b[4m" "%d:%.2d" "\033[0m" " on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );  // %.2d 确保它是两位数，不足补0
+    printf("Still has " "%d" " days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
 
     printf("\nFor help, type \"h\".\n");
 
@@ -168,11 +170,9 @@ static int doList()
     }
     else
     {
-//        printf("%2d%9s   %4s%7s%7s%7s\n",totalRecords,"Date","m","stime","etime","dur");
         printf("%11s   %7s%7s%7s\n","Date","stime","etime","dur");
         for(int i = 0 ; i<totalRecords ;i++)
         {
-//            printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].mark,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             printf("%2d%6d/%.2d/%.2d  %.2d:%.2d  %.2d:%.2d%7d\n",i+1,clkRecord[i].date/10000,clkRecord[i].date/100%100,clkRecord[i].date%100,clkRecord[i].startime/100,clkRecord[i].startime%100,clkRecord[i].endtime/100,clkRecord[i].endtime%100,clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
             totalTime += clkRecord[i].duration;
         }
@@ -222,7 +222,7 @@ static int doAdd()
         }
     }
 
-    printf("what's the time when you clock in?\n");
+    printf("\nwhat's the time when you clock in?\n");
     printf("e.g. 2, 02 or 1802, default 18:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)  //第一个字符是换行，也就是说直接按了换行键
@@ -237,7 +237,7 @@ static int doAdd()
     else  //输入三个字符
         stime = atoi(str);
     
-    printf("what's the time when you clock out?\n");
+    printf("\nwhat's the time when you clock out?\n");
     printf("e.g. 4, 04 or 2004, default 20:00: ");
     fgets(str, 5, stdin); //读取4个字符
     if(*str==10)
@@ -252,7 +252,6 @@ static int doAdd()
     else  //输入三个字符
         etime = atoi(str);
 
-    printf("date=%d, stime=%d, etime=%d\n",date,stime,etime);
     changeRecord( 0, date, stime, etime);
     printf("\n");
 
@@ -404,7 +403,7 @@ static int doSearch()
 
     }
     else if(retNum==-1)
-        printf("no record found in %d.\n",searchDate);
+        printf("no record found in %d/%.2d/%.2d.\n",searchDate/10000,searchDate/100%100,searchDate%100);
 
     return 0;
 }
@@ -482,7 +481,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.5\n");
+                printf("overtime: version 1.0.7\n");
                 break;
             default:
                 return -1;
@@ -543,6 +542,7 @@ static int changeRecord(int number, int date, int stime, int etime)
         {
             while( ((result+1) < totalRecords-1) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
                 result++;
+
             for(int i=totalRecords-1; i> result+1; i--) //向后腾出空间
             {
                 clkRecord[i] = clkRecord[i-1];
@@ -563,13 +563,11 @@ static int changeRecord(int number, int date, int stime, int etime)
     else if(number > 0 && number <= totalRecords)  //修改记录
     {
         number --;
-//        clkRecord[number].startime= stime;
-//        clkRecord[number].endtime= etime;
-//        calDuration(number);
 
         clkRecord[totalRecords] = clkRecord[number];  //clkRecord[totalRecords] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
         clkRecord[totalRecords].startime = stime;
         clkRecord[totalRecords].endtime = etime;
+
         if( validRd(&clkRecord[totalRecords]) >= 0 )
         {
             clkRecord[number] = clkRecord[totalRecords];
@@ -637,9 +635,6 @@ static int sort()
 
 static int validRd( CLOCKINRECORD * recordTmp )
 {
-//    int i=0;
-//    i = search(recordTmp->date);
-    
     if( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
         return -1;   //日期超出范围
     else if( recordTmp->startime >= recordTmp->endtime)
