@@ -482,7 +482,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.4\n");
+                printf("overtime: version 1.0.5\n");
                 break;
             default:
                 return -1;
@@ -603,13 +603,17 @@ static int showHelp()
 
 static int calDuration(int i)
 {
-    int shour, smin, ehour, emin;
+    int shour, smin, ehour, emin, dur;
 
     shour = clkRecord[i].startime/100; 
     smin = clkRecord[i].startime%100; 
     ehour = clkRecord[i].endtime/100; 
     emin = clkRecord[i].endtime%100; 
-    clkRecord[i].duration = (ehour-shour)*60+emin-smin;
+    dur = (ehour-shour)*60+emin-smin;
+    if(dur<30)
+        clkRecord[i].duration = 0;
+    else
+        clkRecord[i].duration = (ehour-shour)*60+emin-smin;
 }
 
 static int sort()
