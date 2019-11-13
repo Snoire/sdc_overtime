@@ -114,7 +114,7 @@ static int welcome()
     printf("It is now at " "\x1b[4m" "%d:%.2d" "\033[0m" " on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );  // %.2d 确保它是两位数，不足补0
     printf("Still has " "%d" " days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
 
-    printf("\nFor help, type \"h\".\n");
+    printf("\nFor help, type \"" "\x1b[33m"  "h" "\x1b[0m"  "\".\n");
 
     return 0;
 }
@@ -481,7 +481,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.7\n");
+                printf("overtime: version 1.0.8\n");
                 break;
             default:
                 return -1;
@@ -637,8 +637,16 @@ static int validRd( CLOCKINRECORD * recordTmp )
 {
     if( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
         return -1;   //日期超出范围
-    else if( recordTmp->startime >= recordTmp->endtime)
-        return -2;   //开始时间居然比结束时间还晚?!
+    else if( recordTmp->startime >= recordTmp->endtime ||    //开始时间居然比结束时间还晚?!
+            recordTmp->startime%100 > 59 ||
+            recordTmp->startime%100 < 0  ||
+            recordTmp->startime/100 > 23 ||
+            recordTmp->startime/100 < 0  ||
+            recordTmp->endtime%100 > 59 ||
+            recordTmp->endtime%100 < 0  ||
+            recordTmp->endtime/100 > 23 ||
+            recordTmp->endtime/100 < 0  )
+        return -2;
     else
     {
 
