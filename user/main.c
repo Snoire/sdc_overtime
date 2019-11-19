@@ -108,6 +108,8 @@ int main(int argc, char **argv)
     return 0;
 }
 
+
+
 static int welcome()
 {
     printf("Welcome to overtime!\n");
@@ -118,6 +120,8 @@ static int welcome()
 
     return 0;
 }
+
+
 
 static int init()
 {
@@ -161,6 +165,8 @@ static int init()
     return 0;
 }
 
+
+
 static int doList()
 {
     int totalTime = 0;
@@ -183,6 +189,8 @@ static int doList()
 
     return 0;
 }
+
+
 
 static int doAdd()
 {
@@ -258,6 +266,8 @@ static int doAdd()
     return 0;
 }
 
+
+
 static int doDelete()
 {
     int delnum;
@@ -282,6 +292,8 @@ static int doDelete()
     return 0;
 }
 
+
+
 static int Del(int delnum)
 {
     int result=0;
@@ -304,6 +316,8 @@ static int Del(int delnum)
     }
     return 0;
 }
+
+
 
 static int doModify()
 {
@@ -361,6 +375,8 @@ static int doModify()
     return 0;
 }
 
+
+
 static int doSearch()
 {
     int value=0, searchDate=0, retNum;
@@ -408,6 +424,8 @@ static int doSearch()
     return 0;
 }
 
+
+
 static int search(int searchDate)
 {
     int i=0;
@@ -419,6 +437,8 @@ static int search(int searchDate)
 
     return -2;
 }
+
+
 
 static int writeToFile()
 {
@@ -438,6 +458,8 @@ static int writeToFile()
 
     return 0;
 }
+
+
 
 static int parseArg(int argc, char **argv)
 {
@@ -481,7 +503,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.8\n");
+                printf("overtime: version 1.0.9\n");
                 break;
             default:
                 return -1;
@@ -495,6 +517,8 @@ static int parseArg(int argc, char **argv)
 
     return 0;  //返回0的话，就是正常解析选项
 }
+
+
 
 static int changeRecord(int number, int date, int stime, int etime)
 {
@@ -582,6 +606,8 @@ static int changeRecord(int number, int date, int stime, int etime)
     return 0;
 }
 
+
+
 static int showHelp()
 {
     printf("Usage: overtime [-hlv] [-d day] [-s stime] [-e etime] [-M number] [-D number]\n\n");
@@ -599,6 +625,8 @@ static int showHelp()
     return 0;
 }
 
+
+
 static int calDuration(int i)
 {
     int shour, smin, ehour, emin, dur;
@@ -613,6 +641,8 @@ static int calDuration(int i)
     else
         clkRecord[i].duration = (ehour-shour)*60+emin-smin;
 }
+
+
 
 static int sort()
 {
@@ -633,19 +663,17 @@ static int sort()
     return 0;
 }
 
+
+
 static int validRd( CLOCKINRECORD * recordTmp )
 {
     if( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
         return -1;   //日期超出范围
     else if( recordTmp->startime >= recordTmp->endtime ||    //开始时间居然比结束时间还晚?!
-            recordTmp->startime%100 > 59 ||
-            recordTmp->startime%100 < 0  ||
-            recordTmp->startime/100 > 23 ||
-            recordTmp->startime/100 < 0  ||
-            recordTmp->endtime%100 > 59 ||
-            recordTmp->endtime%100 < 0  ||
-            recordTmp->endtime/100 > 23 ||
-            recordTmp->endtime/100 < 0  )
+            recordTmp->startime%100 > 59 || recordTmp->startime%100 < 0  ||
+            recordTmp->startime/100 > 23 || recordTmp->startime/100 < 0  ||
+            recordTmp->endtime%100 > 59 || recordTmp->endtime%100 < 0  ||
+            recordTmp->endtime/100 > 23 || recordTmp->endtime/100 < 0  )
         return -2;
     else
     {
@@ -654,5 +682,7 @@ static int validRd( CLOCKINRECORD * recordTmp )
 
     return 0;
 }
+
+
 
 
