@@ -14,15 +14,15 @@
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
 
-typedef struct clockInRecord{
+typedef struct clockinrecord{
     int date;
     int mark;
     int startime;
     int endtime;
     int duration;
-} CLOCKINRECORD; //给结构体起一个别名
+} ClockinRecord; //给结构体起一个别名
 
-CLOCKINRECORD clkRecord[60];
+ClockinRecord clkRecord[60];
 int totalRecords=0; //总记录数
 
 char filePath[70] = "";
@@ -48,7 +48,7 @@ static int changeRecord(int,int,int,int);
 static int calDuration(int);
 static int sort();
 static int Del(int);
-static int validRd(CLOCKINRECORD *);
+static int validRd(ClockinRecord *);
 
 
 
@@ -503,7 +503,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.0.9\n");
+                printf("overtime: version 1.1.0\n");
                 break;
             default:
                 return -1;
@@ -522,12 +522,12 @@ static int parseArg(int argc, char **argv)
 
 static int changeRecord(int number, int date, int stime, int etime)
 {
-    int result;
+    int result, dayofw=0;
 
     if(stime==0)
-        stime = 1800;
+        stime = 1800;      //如果未指定这个参数，则默认为 1800
     else if(stime < 100)
-        stime += 1800;
+        stime += 1800;     //如果指定的参数是两位数，说明省略了小时，则加上 1800
 
     if(etime==0)
         etime = 2000;
@@ -536,6 +536,20 @@ static int changeRecord(int number, int date, int stime, int etime)
 
     if(number==0)  //增加记录
     {
+#if 1
+        if(date==0)
+        {
+            dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
+            if(tmp->tm_mday==1)          //今天是 1 号，也就是不能再往前了
+                date = pre_date + tmp->tm_mday;
+            else if( dayofw == 0)        //星期天
+                date = pre_date + tmp->tm_mday-3;   //前一个工作日
+            else if( dayofw == 6)        //星期六
+                date = pre_date + tmp->tm_mday-2;   //前一个工作日
+            else
+                date = pre_date + tmp->tm_mday-1;   //前一个工作日
+        }
+#else
         if(date==0)
         {
             if(tmp->tm_mday==1)
@@ -543,7 +557,7 @@ static int changeRecord(int number, int date, int stime, int etime)
             else
                 date = pre_date + tmp->tm_mday-1; //前一天
         }
-
+#endif
         result = search(date);
         totalRecords ++;
 
@@ -636,17 +650,14 @@ static int calDuration(int i)
     ehour = clkRecord[i].endtime/100; 
     emin = clkRecord[i].endtime%100; 
     dur = (ehour-shour)*60+emin-smin;
-    if(dur<30)
-        clkRecord[i].duration = 0;
-    else
-        clkRecord[i].duration = (ehour-shour)*60+emin-smin;
+    clkRecord[i].duration = ( dur < 30 ) ? 0 : dur;
 }
 
 
 
 static int sort()
 {
-    CLOCKINRECORD recordTmp;
+    ClockinRecord recordTmp;
     for(int i=0; i< totalRecords-1; i++)
     {
         for(int j=i+1; j< totalRecords; j++)
@@ -665,7 +676,7 @@ static int sort()
 
 
 
-static int validRd( CLOCKINRECORD * recordTmp )
+static int validRd( ClockinRecord * recordTmp )
 {
     if( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
         return -1;   //日期超出范围
