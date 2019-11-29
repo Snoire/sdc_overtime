@@ -57,7 +57,6 @@ int main(int argc, char **argv)
     int num;
     int retParseArg=0;
     volatile int flag = 1;//继续循环的标志
-//    char str[2]; //只能放1个字符
 
     init();
     if((retParseArg=parseArg(argc,argv)) == 1)
@@ -68,7 +67,6 @@ int main(int argc, char **argv)
             num = 0; //如果不恢复初始值，随便输入一个字母将保持上次的结果
 
             printf( COLOR_CYAN "(ot) " COLOR_RESET );
-//            fgets(str, 2 , stdin); //读取1个字符
             num = getchar();
             if(num==10)       //遇到换行符
                 num = 0;
@@ -187,7 +185,7 @@ static int doList()
         }
         printf("\n");
         printf("total time: %d hours and %d minutes\n", totalTime/60, totalTime%60);
-        printf("still needs: %d hours and %d minutes\n\n", (2400-totalTime)/60, (2400-totalTime)%60);
+        printf("still needs: %d hours and %d minutes\n\n", totalTime<2400 ? (2400-totalTime)/60 : 0, totalTime<2400 ? (2400-totalTime)%60 : 0);
     }
 
     return 0;
@@ -279,14 +277,6 @@ static int doDelete()
     
     printf("please input the num that you want to del:\n");
     printf("default the last one: ");
-//    fgets(str, 3, stdin); //读取1个字符  
-//    if(str==10)
-//        delnum = totalRecords;
-//    else
-//    {
-//        delnum = atoi(str);
-//        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
-//    }
     fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
     if(*str==10)  //直接按换行键
         delnum = totalRecords;
@@ -340,15 +330,6 @@ static int doModify()
 
     printf("please input the num that you what to modify:\n");
     printf("default the last one: ");
-//    fgets(str, 2, stdin); //读取1个字符
-//    if(*str==10)
-//        modnum = totalRecords;
-//    else
-//    {
-//        modnum = atoi(str);
-//        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
-//    }
-
     fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
     if(*str==10)  //直接按换行键
         modnum = totalRecords;
@@ -528,7 +509,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.1.2\n");
+                printf("overtime: version 1.1.3\n");
                 break;
             default:
                 return -1;
