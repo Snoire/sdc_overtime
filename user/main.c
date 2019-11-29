@@ -14,21 +14,21 @@
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
 
-typedef struct clockinrecord{
+typedef struct{
     int date;
     int mark;
     int startime;
     int endtime;
     int duration;
-} ClockinRecord; //给结构体起一个别名
+} ClockinRecord;              //给结构体起一个别名
 
 ClockinRecord clkRecord[60];
-int totalRecords=0; //总记录数
+int totalRecords=0;           //总记录数
 
 char filePath[70] = "";
 //char filePath[7+32+18]= {0};
 
-struct tm* tmp;  //保存时间信息
+struct tm* tmp;               //保存时间信息
 int pre_date;
 
 
@@ -56,8 +56,8 @@ int main(int argc, char **argv)
 {
     int num;
     int retParseArg=0;
-    volatile int flag = 1;//退出的标志
-    char str[2]; //只能放1个字符
+    volatile int flag = 1;//继续循环的标志
+//    char str[2]; //只能放1个字符
 
     init();
     if((retParseArg=parseArg(argc,argv)) == 1)
@@ -67,14 +67,17 @@ int main(int argc, char **argv)
         {    
             num = 0; //如果不恢复初始值，随便输入一个字母将保持上次的结果
 
-            printf( COLOR_CYAN "(overtime) " COLOR_RESET );
-            fgets(str, 2 , stdin); //读取1个字符
-            if(*str==10)
+            printf( COLOR_CYAN "(ot) " COLOR_RESET );
+//            fgets(str, 2 , stdin); //读取1个字符
+            num = getchar();
+            if(num==10)       //遇到换行符
                 num = 0;
+            else if(num==-1)  //遇到 Ctrl+d
+                num = 'q';
             else
             {
-                num = *str;
-                scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
+                scanf("%*[^\n]"); //其它情况，输入缓冲区里都有一个 '\n'
+                scanf("%*c");     //所以要清空缓冲区
             }
 
             switch(num)
@@ -503,7 +506,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.1.0\n");
+                printf("overtime: version 1.1.1\n");
                 break;
             default:
                 return -1;
