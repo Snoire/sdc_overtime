@@ -119,7 +119,7 @@ static int welcome()
     printf("It is now at " "\x1b[4m" "%d:%.2d" "\033[0m" " on %s %d, %d, today is %s\n", tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1), tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday) );  // %.2d 确保它是两位数，不足补0
     printf("Still has " "%d" " days besides today!\n", daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) - (tmp->tm_mday) );
 
-    printf("\nFor help, type \"" "\x1b[33m"  "h" "\x1b[0m"  "\".\n");
+    printf("\nFor help, type \"" "\x1b[33m"  "help" "\x1b[0m"  "\" or \"" "\x1b[33m"  "h" "\x1b[0m"  "\".\n");
 
     return 0;
 }
@@ -274,18 +274,28 @@ static int doAdd()
 static int doDelete()
 {
     int delnum;
-    char str[2];
+    char str[3]={0};
     doList();
     
     printf("please input the num that you want to del:\n");
     printf("default the last one: ");
-    fgets(str, 2, stdin); //读取1个字符
-    if(*str==10)
+//    fgets(str, 3, stdin); //读取1个字符  
+//    if(str==10)
+//        delnum = totalRecords;
+//    else
+//    {
+//        delnum = atoi(str);
+//        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
+//    }
+    fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
+    if(*str==10)  //直接按换行键
         delnum = totalRecords;
-    else
+    else if( *(str+1)=='\n' )  //输入一个字符
+        delnum = atoi(str);
+    else                       //缓冲区里有多余的字符
     {
         delnum = atoi(str);
-        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c");
     }
 
     Del(delnum);
@@ -324,20 +334,32 @@ static int Del(int delnum)
 
 static int doModify()
 {
-    char str[5];
+    char str[5]="";
     int stime, etime, modnum;
     doList();
 
     printf("please input the num that you what to modify:\n");
     printf("default the last one: ");
-    fgets(str, 2, stdin); //读取1个字符
-    if(*str==10)
+//    fgets(str, 2, stdin); //读取1个字符
+//    if(*str==10)
+//        modnum = totalRecords;
+//    else
+//    {
+//        modnum = atoi(str);
+//        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
+//    }
+
+    fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
+    if(*str==10)  //直接按换行键
         modnum = totalRecords;
-    else
+    else if( *(str+1)=='\n' )  //输入一个字符
+        modnum = atoi(str);
+    else                       //缓冲区里有多余的字符
     {
         modnum = atoi(str);
-        scanf("%*[^\n]"); scanf("%*c"); //清空缓冲区
+        scanf("%*[^\n]"); scanf("%*c");
     }
+
 
     if(modnum<1||modnum>totalRecords)
         return 0;
@@ -432,7 +454,7 @@ static int doSearch()
 static int search(int searchDate)
 {
     int i=0;
-    for(i; i< totalRecords; i++)
+    for(; i< totalRecords; i++)   //这里如果在第一个分号之前加个 i，会报 statement with no effect 警告
         if(searchDate==clkRecord[i].date)
             return i;
     if(i==totalRecords)
@@ -506,7 +528,7 @@ static int parseArg(int argc, char **argv)
                 break;
             case 'V':
             case 'v':
-                printf("overtime: version 1.1.1\n");
+                printf("overtime: version 1.1.2\n");
                 break;
             default:
                 return -1;
@@ -654,6 +676,8 @@ static int calDuration(int i)
     emin = clkRecord[i].endtime%100; 
     dur = (ehour-shour)*60+emin-smin;
     clkRecord[i].duration = ( dur < 30 ) ? 0 : dur;
+
+    return 0;
 }
 
 

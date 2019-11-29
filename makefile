@@ -1,5 +1,5 @@
 compile_start_time := $(shell date +%s)
-CFLAGS = -I./include
+CFLAGS = -I./include -Wall
 
 objs := user/main.o
 objs += user/dayOfWeek.o
