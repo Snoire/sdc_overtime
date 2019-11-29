@@ -3,7 +3,7 @@
 ## 安装
 
 ```bash
-$ git clone https://github.com/Snoire/overtime.git
+$ git clone https://github.com/Snoire/sdc_overtime.git
 $ cd overtime
 $ sudo make install
 ```
