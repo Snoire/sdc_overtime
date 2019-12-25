@@ -135,7 +135,7 @@ static int init()
     int year, mon, day, hour1, hour2, min1, min2;
     char dataDir[7+32+6] = {0};
 
-    tmp = getCurrentTime();  //初始化的时候就要存储时间信息
+    tmp = getCurrentTime();     //初始化的时候就要存储时间信息
     pre_date = ((tmp->tm_year+1900)*100 + tmp->tm_mon+1) * 100;
 
     char *homevar = getenv("HOME");
@@ -221,12 +221,12 @@ static int doAdd()
                 date = pre_date + tmp->tm_mday - 1; //前一个工作日
 
             break;
-        } else if (i==1 && value=='\n') {  //用户输入一个数字加换行
+        } else if (i==1 && value=='\n') { //用户输入一个数字加换行
             date += pre_date;
             break;
         }
         date = date*10 + value - 48;
-        if (i == 1) {                     //用户输入两个数字
+        if (i == 1) {           //用户输入两个数字
             date += pre_date;
             scanf("%*[^\n]");
             scanf("%*c");       //清空缓冲区
@@ -236,20 +236,20 @@ static int doAdd()
     printf("\nwhat's the time when you clock in?\n");
     printf("e.g. 2, 02 or 1802, default 18:00: ");
     fgets(str, 5, stdin);       //读取4个字符
-    if (*str == 10)  //第一个字符是换行，也就是说直接按了换行键
+    if (*str == 10)             //第一个字符是换行，也就是说直接按了换行键
         stime = 1800;
     else if (*(str+1)=='\n' || *(str+2)=='\n')  //第二个或第三个字符是换行，也就是说只读取了一或两个字符
         stime = 18*100 + atoi(str);
-    else if (*(str+3)!='\n' && *(str+3)!=0) { //只有在第四个字符既不是\n，也不是\0的时候，也就是说缓冲区里有多余的字符时，才能去清空缓冲区
+    else if (*(str+3)!='\n' && *(str+3)!=0) {   //只有在第四个字符既不是\n，也不是\0的时候，也就是说缓冲区里有多余的字符时，才能去清空缓冲区
         stime = atoi(str);
         scanf("%*[^\n]");
-        scanf("%*c"); //在下次读取前清空缓冲区，如果缓冲区里有东西，这里就会卡住
-    } else  //输入三个字符
+        scanf("%*c");           //在下次读取前清空缓冲区，如果缓冲区里有东西，这里就会卡住
+    } else                      //输入三个字符
         stime = atoi(str);
 
     printf("\nwhat's the time when you clock out?\n");
     printf("e.g. 4, 04 or 2004, default 20:00: ");
-    fgets(str, 5, stdin); //读取4个字符
+    fgets(str, 5, stdin);       //读取4个字符
     if (*str == 10)
         etime = 2000;
     else if (*(str+1)=='\n' || *(str+2)=='\n')
@@ -257,8 +257,8 @@ static int doAdd()
     else if (*(str+3)!='\n' && *(str+3)!=0) {
         etime = atoi(str);
         scanf("%*[^\n]");
-        scanf("%*c"); //清空缓冲区
-    } else  //输入三个字符
+        scanf("%*c");           //清空缓冲区
+    } else                      //输入三个字符
         etime = atoi(str);
 
     changeRecord(0, date, stime, etime);
@@ -277,12 +277,12 @@ static int doDelete()
 
     printf("please input the num that you want to del:\n");
     printf("default the last one: ");
-    fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
-    if (*str == 10)  //直接按换行键
+    fgets(str, 3, stdin);       //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
+    if (*str == 10)             //直接按换行键
         delnum = totalRecords;
-    else if (*(str+1)=='\n')  //输入一个字符
+    else if (*(str+1)=='\n')    //输入一个字符
         delnum = atoi(str);
-    else {                     //缓冲区里有多余的字符
+    else {                      //缓冲区里有多余的字符
         delnum = atoi(str);
         scanf("%*[^\n]");
         scanf("%*c");
@@ -306,7 +306,7 @@ static int Del(int delnum)
     if (delnum == totalRecords)
         totalRecords--;
     else {
-        result = delnum - 1;  //要删除的记录的下标（从0开始）
+        result = delnum - 1;    //要删除的记录的下标（从0开始）
         while ( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
             result++;
         for (int i = delnum - 1; i < result; i++)
@@ -329,12 +329,12 @@ static int doModify()
 
     printf("please input the num that you what to modify:\n");
     printf("default the last one: ");
-    fgets(str, 3, stdin); //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
-    if (*str == 10)  //直接按换行键
+    fgets(str, 3, stdin);       //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
+    if (*str == 10)             //直接按换行键
         modnum = totalRecords;
     else if (*(str+1) == '\n')  //输入一个字符
         modnum = atoi(str);
-    else {                     //缓冲区里有多余的字符
+    else {                      //缓冲区里有多余的字符
         modnum = atoi(str);
         scanf("%*[^\n]");
         scanf("%*c");
@@ -346,21 +346,21 @@ static int doModify()
 
     printf("what's the time when you clock in?\n");
     printf("e.g. 2, 02 or 1802, default 18:00: ");
-    fgets(str, 5, stdin); //读取4个字符
-    if (*str == 10)  //直接按换行键
+    fgets(str, 5, stdin);       //读取4个字符
+    if (*str == 10)             //直接按换行键
         stime = 1800;
     else if (*(str+1)=='\n' || *(str+2)=='\n')  //只读取了一或两个字符
         stime = 18*100 + atoi(str);
-    else if (*(str+3)!='\n' && *(str+3)!=0 ) { //缓冲区里有多余的字符
+    else if (*(str+3)!='\n' && *(str+3)!=0 ) {  //缓冲区里有多余的字符
         stime = atoi(str);
         scanf("%*[^\n]");
         scanf("%*c");
-    } else  //输入三个字符
+    } else                      //输入三个字符
         stime = atoi(str);
 
     printf("what's the time when you clock out?\n");
     printf("e.g. 4, 04 or 2004, default 20:00: ");
-    fgets(str, 5, stdin); //读取4个字符
+    fgets(str, 5, stdin);       //读取4个字符
     if (*str == 10)
         etime = 2000;
     else if (*(str+1)=='\n' || *(str+2)=='\n')
@@ -368,8 +368,8 @@ static int doModify()
     else if (*(str+3)!='\n' && *(str+3)!=0) {
         etime = atoi(str);
         scanf("%*[^\n]");
-        scanf("%*c"); //清空缓冲区
-    } else  //输入三个字符
+        scanf("%*c");           //清空缓冲区
+    } else                      //输入三个字符
         etime = atoi(str);
 
     changeRecord(modnum, 0, stime, etime);
@@ -387,22 +387,22 @@ static int doSearch()
 
     for (int i=0; i<2; i++) {
         value = getchar();
-        if (i==0 && value == '\n') {       //用户输入 \n
+        if (i==0 && value == '\n') {                      //用户输入 \n
             if (tmp->tm_mday == 1)
                 searchDate = pre_date + tmp->tm_mday;
             else
                 searchDate = pre_date + tmp->tm_mday - 1; //前一天
             break;
-        } else if (i==1 && value == '\n') { //用户输入一个数字加换行
+        } else if (i==1 && value == '\n') {               //用户输入一个数字加换行
             searchDate += pre_date;
             break;
         }
 
         searchDate = searchDate*10 + value- 48;
-        if (i==1) {                      //用户输入两个数字
+        if (i==1) {                     //用户输入两个数字
             searchDate += pre_date;
             scanf("%*[^\n]");
-            scanf("%*c"); //清空缓冲区
+            scanf("%*c");               //清空缓冲区
         }
     }
 
@@ -428,7 +428,7 @@ static int doSearch()
 static int search(int searchDate)
 {
     int i = 0;
-    for (; i < totalRecords; i++)   //这里如果在第一个分号之前加个 i，会报 statement with no effect 警告
+    for (; i < totalRecords; i++)     //这里如果在第一个分号之前加个 i，会报 statement with no effect 警告
         if (searchDate == clkRecord[i].date)
             return i;
     if (i == totalRecords)
@@ -471,11 +471,11 @@ static int parseArg(int argc, char **argv)
         { "list", no_argument, NULL, 'L' }
     };
     if (argc == 1)
-        return 1;               //进入主循环
+        return 1;                 //进入主循环
     while ((opt = getopt_long(argc, argv, "d:s:e:M:D:hlv", long_options, &option_index)) != -1) { //少加了一个括号..
         switch (opt) {
         case 'd':
-            date = atoi(optarg); //这里应该判断一下
+            date = atoi(optarg);  //这里应该判断一下
             date += pre_date;
             break;
         case 's':
@@ -501,7 +501,7 @@ static int parseArg(int argc, char **argv)
             break;
         case 'V':
         case 'v':
-            printf("overtime: version 1.1.4\n");
+            printf("overtime: version 1.1.5\n");
             break;
         default:
             return -1;
@@ -512,7 +512,7 @@ static int parseArg(int argc, char **argv)
             return -2;
     }
 
-    return 0;  //返回0的话，就是正常解析选项
+    return 0;                     //返回0的话，就是正常解析选项
 }
 
 
@@ -522,20 +522,20 @@ static int changeRecord(int number, int date, int stime, int etime)
     int result, dayofw = 0;
 
     if (stime == 0)
-        stime = 1800;      //如果未指定这个参数，则默认为 1800
+        stime = 1800;             //如果未指定这个参数，则默认为 1800
     else if (stime < 100)
-        stime += 1800;     //如果指定的参数是两位数，说明省略了小时，则加上 1800
+        stime += 1800;            //如果指定的参数是两位数，说明省略了小时，则加上 1800
 
     if (etime == 0)
         etime = 2000;
     else if (etime < 100)
         etime += 2000;
 
-    if (number == 0) { //增加记录
+    if (number == 0) {            //增加记录
 #if 1
         if (date == 0) {
             dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
-            if (tmp->tm_mday == 1)          //今天是 1 号，也就是不能再往前了
+            if (tmp->tm_mday == 1)       //今天是 1 号，也就是不能再往前了
                 date = pre_date + tmp->tm_mday;
             else if (dayofw == 0)        //星期天
                 date = pre_date + tmp->tm_mday - 3;   //前一个工作日
@@ -549,13 +549,13 @@ static int changeRecord(int number, int date, int stime, int etime)
             if (tmp->tm_mday == 1)
                 date = pre_date + tmp->tm_mday;
             else
-                date = pre_date + tmp->tm_mday - 1; //前一天
+                date = pre_date + tmp->tm_mday - 1;   //前一天
         }
 #endif
         result = search(date);
         totalRecords ++;
 
-        if (result == -1) { //未找到记录，在最后添加
+        if (result == -1) {              //未找到记录，在最后添加
             clkRecord[totalRecords-1].date = date;
             clkRecord[totalRecords-1].mark = 1;
             clkRecord[totalRecords-1].startime = stime;
@@ -565,14 +565,14 @@ static int changeRecord(int number, int date, int stime, int etime)
             int ret = validRd(&clkRecord[totalRecords-1]);
             if (ret < 0) {
                 printf("date format error! ret = %d\n", ret);
-                totalRecords--;  //把最后一条排除在外，相当于删掉了
+                totalRecords--;          //把最后一条排除在外，相当于删掉了
             }
-        } else { //找到记录，紧随其后添加
+        } else {                         //找到记录，紧随其后添加
             while (((result+1) < totalRecords-1) &&
                    clkRecord[result+1].mark==(clkRecord[result].mark+1))  //找到mark值最大的一条记录
                 result++;
 
-            for (int i=totalRecords-1; i> result+1; i--) { //向后腾出空间
+            for (int i=totalRecords-1; i> result+1; i--) {                //向后腾出空间
                 clkRecord[i] = clkRecord[i-1];
             }
             clkRecord[result+1].date = date;
@@ -586,10 +586,10 @@ static int changeRecord(int number, int date, int stime, int etime)
                 Del(result+2);
             }
         }
-    } else if (number > 0 && number <= totalRecords) { //修改记录
+    } else if (number > 0 && number <= totalRecords) {    //修改记录
         number --;
 
-        clkRecord[totalRecords] = clkRecord[number];  //clkRecord[totalRecords] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
+        clkRecord[totalRecords] = clkRecord[number];      //clkRecord[totalRecords] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
         clkRecord[totalRecords].startime = stime;
         clkRecord[totalRecords].endtime = etime;
 
@@ -665,12 +665,12 @@ static int sort()
 static int validRd( ClockinRecord * recordTmp )
 {
     if ( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
-        return -1;   //日期超出范围
-    else if ( recordTmp->startime >= recordTmp->endtime ||    //开始时间居然比结束时间还晚?!
-            recordTmp->startime%100 > 59 || recordTmp->startime%100 < 0  ||
-            recordTmp->startime/100 > 23 || recordTmp->startime/100 < 0  ||
-            recordTmp->endtime%100 > 59 || recordTmp->endtime%100 < 0  ||
-            recordTmp->endtime/100 > 23 || recordTmp->endtime/100 < 0  )
+        return -1;              //日期超出范围
+    else if (recordTmp->startime >= recordTmp->endtime    //开始时间居然比结束时间还晚?!
+             || recordTmp->startime%100 > 59 || recordTmp->startime%100 < 0
+             || recordTmp->startime/100 > 23 || recordTmp->startime/100 < 0
+             || recordTmp->endtime%100 > 59 || recordTmp->endtime%100 < 0
+             || recordTmp->endtime/100 > 23 || recordTmp->endtime/100 < 0)
         return -2;
     else {
 
