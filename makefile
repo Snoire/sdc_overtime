@@ -11,7 +11,10 @@ all : overtime
 .PHONY : all clean cscope install gdb
 
 overtime : $(objs)
-	cc -o $@ $^
+	cc $^ -o $@
+
+user/main.o : include/dayOfWeek.h include/daysInaMonth.h include/getCurrentTime.h
+
 #user/main.o : user/main.c
 #	cc -c $^ -o $@ $(CFLAGS)
 #user/dayOfWeek.o: user/dayOfWeek.c
