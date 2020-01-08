@@ -12,14 +12,14 @@ all : overtime
 
 overtime : $(objs)
 	cc -o $@ $^
-user/main.o : user/main.c
-	cc -c $^ -o $@ $(CFLAGS)
-user/dayOfWeek.o: user/dayOfWeek.c
-	cc -c $^ -o $@
-user/daysInaMonth.o: user/daysInaMonth.c
-	cc -c $^ -o $@
-user/getCurrentTime.o: user/getCurrentTime.c
-	cc -c $^ -o $@
+#user/main.o : user/main.c
+#	cc -c $^ -o $@ $(CFLAGS)
+#user/dayOfWeek.o: user/dayOfWeek.c
+#	cc -c $^ -o $@
+#user/daysInaMonth.o: user/daysInaMonth.c
+#	cc -c $^ -o $@
+#user/getCurrentTime.o: user/getCurrentTime.c
+#	cc -c $^ -o $@
 
 cscope :
 	cscope -Rbq

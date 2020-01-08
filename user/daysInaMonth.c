@@ -32,7 +32,7 @@ int daysInaMonth( int year, int month)
             break; 
         case 2:
             // 判断闰年
-            if(year%4==0 && year%100!=0 || year%400==0)
+            if((year%4==0 && year%100!=0) || year%400==0)
                 days=29; 
             else
                 days=28; 
