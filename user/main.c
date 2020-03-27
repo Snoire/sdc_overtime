@@ -104,7 +104,7 @@ int main(int argc, char **argv)
                 printf("invalid option.\n");
             }                   //switch end..
         }                       //while end
-        printf("\nbye..\n\n");
+        printf("bye..\n\n");
     }
     if (retParseArg == -1)
         showHelp();
@@ -177,7 +177,7 @@ static int doList()
 {
     int totalTime = 0;
     if (totalRecords == 0) {
-        printf("nothing..\n");
+        printf("nothing..\n\n");
     } else {
         printf("%11s   %7s%7s%7s\n", "Date", "stime", "etime", "dur");
         for (int i = 0; i < totalRecords; i++) {
