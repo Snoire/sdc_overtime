@@ -6,6 +6,7 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <pwd.h>
 
 #include "dayOfWeek.h"
 #include "daysInaMonth.h"
@@ -115,7 +116,12 @@ int main(int argc, char **argv)
 
 static int welcome()
 {
-    printf("Welcome to overtime!\n");
+    struct passwd *pwd;
+    uid_t uid;
+    uid = getuid();
+    pwd = getpwuid(uid);
+    printf("Hi, %s, Welcome to overtime!\n", pwd->pw_name);
+
     printf("It is now at " "\x1b[4m" "%d:%.2d" "\033[0m" " on %s %d, %d, today is %s\n",
             tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1),
             tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday));  // %.2d 确保它是两位数，不足补0
