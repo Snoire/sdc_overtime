@@ -6,10 +6,10 @@
 struct tm* getCurrentTime()
 {
     struct timeval tv;
-    struct timezone tz;
+//    struct timezone tz;
     struct tm* tmp;
 
-    gettimeofday(&tv,&tz);
+    gettimeofday(&tv, NULL);  //This tz argument is now obsolete and should always be specified as NULL.
 //    printf("time is %d\n",tv.tv_sec); //TLPI 第10章，获取秒数
 
     tmp = localtime(&(tv.tv_sec));
