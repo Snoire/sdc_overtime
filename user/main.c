@@ -14,6 +14,8 @@
 
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
+#define STIM          1800
+#define ETIM          2000
 
 typedef struct {
     int date;
@@ -199,43 +201,60 @@ static int doList()
 
 
 
+static int readtime(int flag)
+{
+    int ret = 0, time;
+    char str[5] = "";                //最多能放 4 个字符
+
+    ret = scanf("%4[0-9]", str);
+    if (ret == 1) {
+        if (strlen(str) < 3)           //一或两个数字
+            time = flag + atoi(str);
+        else                           //三或四个数字
+            time = atoi(str);
+    } else if (ret == 0)               //遇到 '\n' 或非数字
+        time = flag;
+    else                               //遇到 Ctrl+D
+        return -1;
+
+    scanf("%*[^\n]");
+    scanf("%*c");
+
+    return time;
+}
+
+
+
+static int readindex()
+{
+    int index, ret;
+    char str[3] = {0};
+
+    ret = scanf("%2[0-9]", str);
+    if (ret == 1)                                                  //一或两个数字
+        index = atoi(str);
+    else if (ret == 0)                                             // '\n' 或者没有输入数字
+        index = totalRecords;
+    else                                                           // Ctrl+D
+        return -1;
+
+    scanf("%*[^\n]");
+    scanf("%*c");
+
+    return index;
+}
+
+
+
 static int doAdd()
 {
     int ret = 0;
     int date = 0, stime, etime;
-//    int value = 0, dayofw = 0;
     int dayofw = 0;
-    char str[5] = "";                //最多能放 4 个字符
+    char str[3] = "";                //最多能放 2 个字符
     printf("what's the day do you want to record?\n");
     printf("e.g. 1, default yesterday: ");
 
-#if 0   /*这里没有讨论用户输入字母的情况*/
-    for (int i=0; i<2; i++) {
-        value = getchar();
-        if (i==0 && value=='\n') {      //用户输入 \n
-            dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
-            if (tmp->tm_mday==1)
-                date = pre_date + tmp->tm_mday;
-            else if (dayofw == 0)       //星期天
-                date = pre_date + tmp->tm_mday - 3; //前一个工作日
-            else if (dayofw == 6)       //星期六
-                date = pre_date + tmp->tm_mday - 2; //前一个工作日
-            else
-                date = pre_date + tmp->tm_mday - 1; //前一个工作日
-
-            break;
-        } else if (i==1 && value=='\n') { //用户输入一个数字加换行
-            date += pre_date;
-            break;
-        }
-        date = date*10 + value - 48;
-        if (i == 1) {           //用户输入两个数字
-            date += pre_date;
-            scanf("%*[^\n]");
-            scanf("%*c");       //清空缓冲区
-        }
-    }
-#else
     ret = scanf("%2[0-9]", str);
     if (ret == 1)
         date = pre_date + atoi(str);
@@ -256,73 +275,20 @@ static int doAdd()
 
     scanf("%*[^\n]");
     scanf("%*c");
-    memset(str, 0, sizeof(str));
-#endif
 
     printf("\nwhat's the time when you clock in?\n");
     printf("e.g. 2, 02 or 1802, default 18:00: ");
-#if 0
-    fgets(str, 5, stdin);       //读取4个字符   // str 的长度只有 3，怎么能输入 4 个字符呢？
-    if (*str == 10)             //第一个字符是换行，也就是说直接按了换行键
-        stime = 1800;
-    else if (*(str+1)=='\n' || *(str+2)=='\n')  //第二个或第三个字符是换行，也就是说只读取了一或两个字符
-        stime = 18*100 + atoi(str);
-    else if (*(str+3)!='\n' && *(str+3)!=0) {   //只有在第四个字符既不是\n，也不是\0的时候，也就是说缓冲区里有多余的字符时，才能去清空缓冲区
-        stime = atoi(str);
-        scanf("%*[^\n]");
-        scanf("%*c");           //在下次读取前清空缓冲区，如果缓冲区里有东西，这里就会卡住
-    } else                      //输入三个字符
-        stime = atoi(str);
-#else
-    ret = scanf("%4[0-9]", str);
-    if (ret == 1) {
-        if (strlen(str) < 3)           //一或两个数字
-            stime = 18*100 + atoi(str);
-        else                           //三或四个数字
-            stime = atoi(str);
-    } else if (ret == 0)               //遇到 '\n' 或非数字
-        stime = 1800;
-    else {                             //遇到 Ctrl+D
+    if ((stime = readtime(STIM)) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
-    memset(str, 0, sizeof(str));
-#endif
 
     printf("\nwhat's the time when you clock out?\n");
     printf("e.g. 4, 04 or 2004, default 20:00: ");
-#if 0
-    fgets(str, 5, stdin);       //读取4个字符
-    if (*str == 10)
-        etime = 2000;
-    else if (*(str+1)=='\n' || *(str+2)=='\n')
-        etime = 20*100 + atoi(str);
-    else if (*(str+3)!='\n' && *(str+3)!=0) {
-        etime = atoi(str);
-        scanf("%*[^\n]");
-        scanf("%*c");           //清空缓冲区
-    } else                      //输入三个字符
-        etime = atoi(str);
-#else
-    ret = scanf("%4[0-9]", str);
-    if (ret == 1) {
-        if (strlen(str) < 3)           //一或两个数字
-            etime = 20*100 + atoi(str);
-        else                           //三或四个数字
-            etime = atoi(str);
-    } else if (ret == 0)               //遇到 '\n' 或非数字
-        etime = 2000;
-    else {                             //遇到 Ctrl+D
+    if ((etime = readtime(ETIM)) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
-#endif
 
     changeRecord(0, date, stime, etime);
     printf("\n");
@@ -334,37 +300,17 @@ static int doAdd()
 
 static int doDelete()
 {
-    int delnum, ret;
-    char str[3] = {0};
+    int delnum;
+
     doList();
 
     printf("please input the num that you want to del:\n");
     printf("default the last one: ");
-#if 0
-    fgets(str, 3, stdin);       //读取2个字符  //使用fgets有点危险，当用户输入Ctrl+d时，str的值会保持默认值继续向下执行
-    if (*str == 10)             //直接按换行键
-        delnum = totalRecords;
-    else if (*(str+1)=='\n')    //输入一个字符
-        delnum = atoi(str);
-    else {                      //缓冲区里有多余的字符
-        delnum = atoi(str);
-        scanf("%*[^\n]");
-        scanf("%*c");
-    }
-#else
-    ret = scanf("%2[0-9]", str);
-    if (ret == 1)                                                  //一或两个数字
-        delnum = atoi(str);
-    else if (ret == 0)                                             // '\n' 或者没有输入数字
-        delnum = totalRecords;
-    else {                                                         // Ctrl+D
+
+    if ((delnum = readindex()) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
-#endif
 
     Del(delnum);
     writeToFile();
@@ -401,67 +347,33 @@ static int Del(int delnum)
 
 static int doModify()
 {
-    char str[5] = "";
-    int stime, etime, modnum, ret;
+    int stime, etime, modnum;
     doList();
 
     printf("please input the num that you what to modify:\n");
     printf("default the last one: ");
 
-    ret = scanf("%2[0-9]", str);
-    if (ret == 1)                                                  //一或两个数字
-        modnum = atoi(str);
-    else if (ret == 0)                                             // '\n' 或者没有输入数字
-        modnum = totalRecords;
-    else {                                                         // Ctrl+D
+    if ((modnum = readindex()) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
-    memset(str, 0, sizeof(str));
-
 
     if (modnum < 1 || modnum > totalRecords)
         return 0;
 
     printf("what's the time when you clock in?\n");
     printf("e.g. 2, 02 or 1802, default 18:00: ");
-    ret = scanf("%4[0-9]", str);
-    if (ret == 1) {
-        if (strlen(str) < 3)           //一或两个数字
-            stime = 18*100 + atoi(str);
-        else                           //三或四个数字
-            stime = atoi(str);
-    } else if (ret == 0)               //遇到 '\n' 或非数字
-        stime = 1800;
-    else {                             //遇到 Ctrl+D
+    if ((stime = readtime(STIM)) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
-    memset(str, 0, sizeof(str));
 
     printf("what's the time when you clock out?\n");
     printf("e.g. 4, 04 or 2004, default 20:00: ");
-    ret = scanf("%4[0-9]", str);
-    if (ret == 1) {
-        if (strlen(str) < 3)           //一或两个数字
-            etime = 20*100 + atoi(str);
-        else                           //三或四个数字
-            etime = atoi(str);
-    } else if (ret == 0)               //遇到 '\n' 或非数字
-        etime = 2000;
-    else {                             //遇到 Ctrl+D
+    if ((etime = readtime(ETIM)) == -1) {
         printf("\n");
         return -1;
     }
-
-    scanf("%*[^\n]");
-    scanf("%*c");
 
     changeRecord(modnum, 0, stime, etime);
     printf("\n");
