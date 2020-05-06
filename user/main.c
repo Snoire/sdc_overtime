@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <signal.h>
 
 #include "dayOfWeek.h"
 #include "daysInaMonth.h"
@@ -52,6 +53,7 @@ static int calDuration(int);
 static int sort();
 static int Del(int);
 static int validRd(ClockinRecord *);
+static void sighandler(int);
 
 
 
@@ -60,6 +62,8 @@ int main(int argc, char **argv)
     int ret = 0;
     int retParseArg = 0;
     volatile int flag = 1;      //继续循环的标志
+
+    signal(SIGINT, sighandler);
 
     init();
     if ((retParseArg = parseArg(argc, argv)) == 1) {
@@ -101,11 +105,19 @@ int main(int argc, char **argv)
                 printf("invalid option.\n");
             }                   //switch end..
         }                       //while end
-        printf("bye..\n\n");
+        printf("^D\nbye..\n\n");
     }
     if (retParseArg == -1)
         showHelp();
     return 0;
+}
+
+
+
+void sighandler(int signum)
+{
+    printf("\nbye..\n\n");
+    exit(1);
 }
 
 
