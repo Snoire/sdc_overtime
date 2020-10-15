@@ -31,8 +31,8 @@ gdb : all
 	cc -o user/main.o -c -g user/main.c $(CFLAGS)
 
 install : all
-	install -c overtime /usr/local/bin
-	install -c overtime.1 /usr/local/man/man1
+	sudo install -c overtime /usr/local/bin
+	sudo install -c overtime.1 /usr/local/man/man1
 
 clean :
 	@echo 'clean up redundant files..'

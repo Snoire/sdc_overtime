@@ -72,6 +72,7 @@ int main(int argc, char **argv)
             ret = 0;            //如果不恢复初始值，随便输入一个字母将保持上次的结果
 
             printf(COLOR_CYAN "(ot) " COLOR_RESET);
+            fflush(stdout);
             ret = getchar();
             if (ret == 10)      //遇到换行符
                 ret = 0;
@@ -84,8 +85,8 @@ int main(int argc, char **argv)
 
             switch (ret) {
             case 'h':
-                printf("h: help    l: list     q: quit\n");
-                printf("a: add     d: delete   m: modify   s: search\n\n");
+                printf("a: add     h: help     l: list     q: quit\n"
+                       "d: delete  m: modify   s: search\n\n");
                 break;
             case 'a':
                 doAdd(); break;

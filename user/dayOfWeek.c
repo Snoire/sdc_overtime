@@ -2,7 +2,7 @@
 
 char clearInput;
 
-int dayOfWeek( int date) //output: 0-6, 0 for sun..  input: date format: 20191108
+int dayOfWeek(int date) //output: 0-6, 0 for sun..  input: date format: 20191108
 {
     int w, y, c, m, d;
     c = date/1000000;
@@ -25,7 +25,7 @@ int dayOfWeek( int date) //output: 0-6, 0 for sun..  input: date format: 2019110
     return w;
 }
 
-char * transWeek( int w )
+char * transWeek(int w)
 {
     char * pstr;
     switch(w){
