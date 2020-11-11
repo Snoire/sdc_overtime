@@ -265,22 +265,26 @@ static int doAdd()
     int date = 0, stime, etime;
     int dayofw = 0;
     char str[3] = "";                //最多能放 2 个字符
+
+    /* default yesterday */
+    dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
+    if (tmp->tm_mday == 1)
+        date = pre_date + tmp->tm_mday;
+    else if (dayofw == 0)       //星期天
+        date = pre_date + tmp->tm_mday - 3; //前一个工作日
+    else if (dayofw == 6)       //星期六
+        date = pre_date + tmp->tm_mday - 2; //前一个工作日
+    else
+        date = pre_date + tmp->tm_mday - 1; //前一个工作日
+
     printf("what's the day do you want to record?\n");
-    printf("e.g. 1, default yesterday: ");
+    printf("e.g. 1, default %d: ", date % 100);
 
     ret = scanf("%2[0-9]", str);
     if (ret == 1)
         date = pre_date + atoi(str);
     else if (ret == 0) {                                             // '\n' 或者没有输入数字
-        dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
-        if (tmp->tm_mday == 1)
-            date = pre_date + tmp->tm_mday;
-        else if (dayofw == 0)       //星期天
-            date = pre_date + tmp->tm_mday - 3; //前一个工作日
-        else if (dayofw == 6)       //星期六
-            date = pre_date + tmp->tm_mday - 2; //前一个工作日
-        else
-            date = pre_date + tmp->tm_mday - 1; //前一个工作日
+        /* pass */
     } else {                                                         // Ctrl+D
         printf("\n");
         return -1;
