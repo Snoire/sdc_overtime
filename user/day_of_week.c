@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-char clearInput;
+char clear_input;
 
-int dayOfWeek(int date) //output: 0-6, 0 for sun..  input: date format: 20191108
+int day_of_week(int date) //output: 0-6, 0 for sun..  input: date format: 20191108
 {
     int w, y, c, m, d;
     c = date/1000000;
@@ -25,7 +25,7 @@ int dayOfWeek(int date) //output: 0-6, 0 for sun..  input: date format: 20191108
     return w;
 }
 
-char * transWeek(int w)
+char * trans_week(int w)
 {
     char * pstr;
     switch(w){

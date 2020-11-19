@@ -2,9 +2,9 @@ compile_start_time := $(shell date +%s)
 CFLAGS = -I./include -Wall -Werror
 
 objs := user/main.o
-objs += user/dayOfWeek.o
-objs += user/daysInaMonth.o
-objs += user/getCurrentTime.o
+objs += user/day_of_week.o
+objs += user/day_in_month.o
+objs += user/get_current_time.o
 
 
 all : overtime
@@ -13,15 +13,15 @@ all : overtime
 overtime : $(objs)
 	cc $^ -o $@
 
-user/main.o : include/dayOfWeek.h include/daysInaMonth.h include/getCurrentTime.h
+user/main.o : include/day_of_week.h include/day_in_month.h include/get_current_time.h
 
 #user/main.o : user/main.c
 #	cc -c $^ -o $@ $(CFLAGS)
-#user/dayOfWeek.o: user/dayOfWeek.c
+#user/day_of_week.o: user/day_of_week.c
 #	cc -c $^ -o $@
-#user/daysInaMonth.o: user/daysInaMonth.c
+#user/day_in_month.o: user/day_in_month.c
 #	cc -c $^ -o $@
-#user/getCurrentTime.o: user/getCurrentTime.c
+#user/get_current_time.o: user/get_current_time.c
 #	cc -c $^ -o $@
 
 cscope :

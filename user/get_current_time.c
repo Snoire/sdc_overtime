@@ -3,7 +3,7 @@
 #include <sys/time.h>
 
 
-struct tm* getCurrentTime()
+struct tm* get_current_time()
 {
     struct timeval tv;
 //    struct timezone tz;
@@ -21,7 +21,7 @@ struct tm* getCurrentTime()
     return tmp;
 }
 
-char * transMon( int m )
+char * trans_mon( int m )
 {
     char * pstr;
     switch(m){

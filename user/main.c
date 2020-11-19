@@ -9,9 +9,9 @@
 #include <pwd.h>
 #include <signal.h>
 
-#include "dayOfWeek.h"
-#include "daysInaMonth.h"
-#include "getCurrentTime.h"
+#include "day_of_week.h"
+#include "day_in_month.h"
+#include "get_current_time.h"
 
 #define COLOR_CYAN    "\x1b[36m"
 #define COLOR_RESET   "\x1b[0m"
@@ -24,13 +24,13 @@ typedef struct {
     int startime;
     int endtime;
     int duration;
-} ClockinRecord;                //给结构体起一个别名
+} clockin_record_t;                //给结构体起一个别名
 
-ClockinRecord clkRecord[60];
-int totalRecords = 0;           //总记录数
+clockin_record_t record[60];
+int total_records = 0;           //总记录数
 
-char filePath[70] = "";
-//char filePath[7+32+18]= {0};
+char file_path[70] = "";
+//char file_path[7+32+18]= {0};
 
 struct tm *tmp;                 //保存时间信息
 int pre_date;
@@ -39,20 +39,20 @@ int pre_date;
 //声明函数
 static int welcome();
 static int init();
-static int doList();
-static int doAdd();
-static int doDelete();
-static int doModify();
-static int doSearch();
+static int do_list();
+static int do_add();
+static int do_delete();
+static int do_modify();
+static int do_search();
 static int search(int);
-static int writeToFile();
-static int parseArg(int, char **);
-static int showHelp();
-static int changeRecord(int, int, int, int);
-static int calDuration(int);
+static int write_to_file();
+static int parse_args(int, char **);
+static int show_help();
+static int change_record(int, int, int, int);
+static int calculate_duration(int);
 static int sort();
-static int Del(int);
-static int validRd(ClockinRecord *);
+static int del_record(int);
+static int validate_record(clockin_record_t *);
 static void sighandler(int);
 
 
@@ -60,13 +60,13 @@ static void sighandler(int);
 int main(int argc, char **argv)
 {
     int ret = 0;
-    int retParseArg = 0;
+    int ret_parse_args = 0;
     volatile int flag = 1;      //继续循环的标志
 
     signal(SIGINT, sighandler);
 
     init();
-    if ((retParseArg = parseArg(argc, argv)) == 1) {
+    if ((ret_parse_args = parse_args(argc, argv)) == 1) {
         welcome();
         while (flag) {
             ret = 0;            //如果不恢复初始值，随便输入一个字母将保持上次的结果
@@ -89,15 +89,15 @@ int main(int argc, char **argv)
                        "d: delete  m: modify   s: search\n\n");
                 break;
             case 'a':
-                doAdd(); break;
+                do_add(); break;
             case 'd':
-                doDelete(); break;
+                do_delete(); break;
             case 'm':
-                doModify(); break;
+                do_modify(); break;
             case 'l':
-                doList(); break;
+                do_list(); break;
             case 's':
-                doSearch(); break;
+                do_search(); break;
             case 'q':
                 flag = 0; break;
             case 0:
@@ -108,8 +108,8 @@ int main(int argc, char **argv)
         }                       //while end
         printf("^D\nbye..\n\n");
     }
-    if (retParseArg == -1)
-        showHelp();
+    if (ret_parse_args == -1)
+        show_help();
     return 0;
 }
 
@@ -132,10 +132,10 @@ static int welcome()
     printf("Hi, %s, Welcome to overtime!\n", pwd->pw_name);
 
     printf("It is now at " "\x1b[4m" "%d:%.2d" "\033[0m" " on %s %d, %d, today is %s\n",
-            tmp->tm_hour, tmp->tm_min, transMon(tmp->tm_mon+1),
-            tmp->tm_mday, tmp->tm_year+1900, transWeek(tmp->tm_wday));  // %.2d 确保它是两位数，不足补0
+            tmp->tm_hour, tmp->tm_min, trans_mon(tmp->tm_mon+1),
+            tmp->tm_mday, tmp->tm_year+1900, trans_week(tmp->tm_wday));  // %.2d 确保它是两位数，不足补0
     printf("Still has " "%d" " days besides today!\n",
-            daysInaMonth(tmp->tm_year+1900, tmp->tm_mon+1) - (tmp->tm_mday));
+            day_in_month(tmp->tm_year+1900, tmp->tm_mon+1) - (tmp->tm_mday));
 
     printf("\nFor help, type \"" "\x1b[33m" "help"
            "\x1b[0m" "\" or \"" "\x1b[33m" "h" "\x1b[0m" "\".\n");
@@ -148,38 +148,38 @@ static int welcome()
 static int init()
 {
     int year, mon, day, hour1, hour2, min1, min2;
-    char dataDir[7+32+6] = {0};
+    char data_dir[7+32+6] = {0};
 
-    tmp = getCurrentTime();     //初始化的时候就要存储时间信息
+    tmp = get_current_time();     //初始化的时候就要存储时间信息
     pre_date = ((tmp->tm_year+1900)*100 + tmp->tm_mon+1) * 100;
 
     char *homevar = getenv("HOME");
-    strcat(dataDir, homevar);
-    strcat(dataDir, "/.data");
+    strcat(data_dir, homevar);
+    strcat(data_dir, "/.data");
 
-    sprintf(filePath, "%s/.data/record_%d.data", homevar,
+    sprintf(file_path, "%s/.data/record_%d.data", homevar,
             (tmp->tm_year+1900)*100 + tmp->tm_mon+1);
 
-    if (access(dataDir, F_OK) != 0)     //文件夹不存在
-        mkdir(dataDir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (access(data_dir, F_OK) != 0)     //文件夹不存在
+        mkdir(data_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 
-    FILE *fp = fopen(filePath, "r");
+    FILE *fp = fopen(file_path, "r");
 
     if (fp != NULL) {
-        fscanf(fp, "%2d", &totalRecords);
+        fscanf(fp, "%2d", &total_records);
         fscanf(fp, "%*[^\n]\n");        //读第一行，但不用
 
-        for (int i = 0; i < totalRecords; i++) {
+        for (int i = 0; i < total_records; i++) {
             fscanf(fp, "%*2d%6d/%2d/%2d%4d  %2d:%2d  %2d:%2d%7d\n",
-                   &year, &mon, &day, &clkRecord[i].mark, &hour1,
-                   &min1, &hour2, &min2, &clkRecord[i].duration);
-            clkRecord[i].date = year*10000 + mon*100 + day;
-            clkRecord[i].startime = hour1*100 + min1;
-            clkRecord[i].endtime = hour2*100 + min2;
+                   &year, &mon, &day, &record[i].mark, &hour1,
+                   &min1, &hour2, &min2, &record[i].duration);
+            record[i].date = year*10000 + mon*100 + day;
+            record[i].startime = hour1*100 + min1;
+            record[i].endtime = hour2*100 + min2;
         }
         fclose(fp);             //放在这里就正常了，本来在条件语句后面的，应该是关闭一个已经关闭的文件会发生错误
     } else {                    // if file does not exit, create and init it.
-        writeToFile();
+        write_to_file();
     }
     fp = NULL;
 
@@ -188,25 +188,25 @@ static int init()
 
 
 
-static int doList()
+static int do_list()
 {
-    int totalTime = 0;
-    if (totalRecords == 0) {
+    int total_time = 0;
+    if (total_records == 0) {
         printf("nothing..\n\n");
     } else {
         printf("%11s   %7s%7s%7s\n", "Date", "stime", "etime", "dur");
-        for (int i = 0; i < totalRecords; i++) {
+        for (int i = 0; i < total_records; i++) {
             printf("%2d%6d/%.2d/%.2d  %.2d:%.2d  %.2d:%.2d%7d\n",
-                   i+1, clkRecord[i].date/10000, clkRecord[i].date/100%100,
-                   clkRecord[i].date%100, clkRecord[i].startime/100, clkRecord[i].startime%100,
-                   clkRecord[i].endtime/100, clkRecord[i].endtime%100, clkRecord[i].duration);  //用 %s 输出 int 会发生段错误
-            totalTime += clkRecord[i].duration;
+                   i+1, record[i].date/10000, record[i].date/100%100,
+                   record[i].date%100, record[i].startime/100, record[i].startime%100,
+                   record[i].endtime/100, record[i].endtime%100, record[i].duration);  //用 %s 输出 int 会发生段错误
+            total_time += record[i].duration;
         }
         printf("\n");
-        printf("total time: %d hours and %d minutes\n", totalTime/60, totalTime%60);
+        printf("total time: %d hours and %d minutes\n", total_time/60, total_time%60);
         printf("still needs: %d hours and %d minutes\n\n",
-               totalTime<2400 ? (2400-totalTime)/60 : 0,
-               totalTime<2400 ? (2400-totalTime)%60 : 0);
+               total_time<2400 ? (2400-total_time)/60 : 0,
+               total_time<2400 ? (2400-total_time)%60 : 0);
     }
 
     return 0;
@@ -247,7 +247,7 @@ static int readindex()
     if (ret == 1)                                                  //一或两个数字
         index = atoi(str);
     else if (ret == 0)                                             // '\n' 或者没有输入数字
-        index = totalRecords;
+        index = total_records;
     else                                                           // Ctrl+D
         return -1;
 
@@ -259,7 +259,7 @@ static int readindex()
 
 
 
-static int doAdd()
+static int do_add()
 {
     int ret = 0;
     int date = 0, stime, etime;
@@ -267,7 +267,7 @@ static int doAdd()
     char str[3] = "";                //最多能放 2 个字符
 
     /* default yesterday */
-    dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
+    dayofw = day_of_week( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
     if (tmp->tm_mday == 1)
         date = pre_date + tmp->tm_mday;
     else if (dayofw == 0)       //星期天
@@ -307,7 +307,7 @@ static int doAdd()
         return -1;
     }
 
-    changeRecord(0, date, stime, etime);
+    change_record(0, date, stime, etime);
     printf("\n");
 
     return 0;
@@ -315,11 +315,11 @@ static int doAdd()
 
 
 
-static int doDelete()
+static int do_delete()
 {
     int delnum;
 
-    doList();
+    do_list();
 
     printf("please input the num that you want to del:\n");
     printf("default the last one: ");
@@ -329,8 +329,8 @@ static int doDelete()
         return -1;
     }
 
-    Del(delnum);
-    writeToFile();
+    del_record(delnum);
+    write_to_file();
     printf("\n");
 
     return 0;
@@ -338,34 +338,34 @@ static int doDelete()
 
 
 
-static int Del(int delnum)
+static int del_record(int delnum)
 {
     int result = 0;
-    if (delnum < 1 || delnum > totalRecords)
+    if (delnum < 1 || delnum > total_records)
         return 0;
 
-    if (delnum == totalRecords)
-        totalRecords--;
+    if (delnum == total_records)
+        total_records--;
     else {
         result = delnum - 1;    //要删除的记录的下标（从0开始）
-        while ( ((result+1) < totalRecords) && clkRecord[result+1].mark==(clkRecord[result].mark+1) )  //找到mark值最大的一条记录
+        while ( ((result+1) < total_records) && record[result+1].mark==(record[result].mark+1) )  //找到mark值最大的一条记录
             result++;
         for (int i = delnum - 1; i < result; i++)
-            clkRecord[i+1].mark --;
+            record[i+1].mark --;
 
-        for (int i = delnum; i < totalRecords; i++)
-            clkRecord[i-1] = clkRecord[i];
-        totalRecords--;
+        for (int i = delnum; i < total_records; i++)
+            record[i-1] = record[i];
+        total_records--;
     }
     return 0;
 }
 
 
 
-static int doModify()
+static int do_modify()
 {
     int stime, etime, modnum;
-    doList();
+    do_list();
 
     printf("please input the num that you what to modify:\n");
     printf("default the last one: ");
@@ -375,7 +375,7 @@ static int doModify()
         return -1;
     }
 
-    if (modnum < 1 || modnum > totalRecords)
+    if (modnum < 1 || modnum > total_records)
         return 0;
 
     printf("what's the time when you clock in?\n");
@@ -392,7 +392,7 @@ static int doModify()
         return -1;
     }
 
-    changeRecord(modnum, 0, stime, etime);
+    change_record(modnum, 0, stime, etime);
     printf("\n");
 
     return 0;
@@ -400,58 +400,58 @@ static int doModify()
 
 
 
-static int doSearch()
+static int do_search()
 {
-    int value = 0, searchDate = 0, retNum;
+    int value = 0, search_date = 0, ret_num;
     printf("which day do you want to search: ");
 
     for (int i=0; i<2; i++) {
         value = getchar();
         if (i==0 && value == '\n') {                      //用户输入 \n
             if (tmp->tm_mday == 1)
-                searchDate = pre_date + tmp->tm_mday;
+                search_date = pre_date + tmp->tm_mday;
             else
-                searchDate = pre_date + tmp->tm_mday - 1; //前一天
+                search_date = pre_date + tmp->tm_mday - 1; //前一天
             break;
         } else if (i==1 && value == '\n') {               //用户输入一个数字加换行
-            searchDate += pre_date;
+            search_date += pre_date;
             break;
         }
 
-        searchDate = searchDate*10 + value- 48;
+        search_date = search_date*10 + value- 48;
         if (i==1) {                     //用户输入两个数字
-            searchDate += pre_date;
+            search_date += pre_date;
             scanf("%*[^\n]");
             scanf("%*c");               //清空缓冲区
         }
     }
 
-    retNum = search(searchDate);
-    if (retNum >= 0) {
+    ret_num = search(search_date);
+    if (ret_num >= 0) {
         do {
             printf("%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",
-                   retNum+1, clkRecord[retNum].date/10000, clkRecord[retNum].date/100%100,
-                   clkRecord[retNum].date%100, clkRecord[retNum].mark, clkRecord[retNum].startime/100,
-                   clkRecord[retNum].startime%100, clkRecord[retNum].endtime/100,
-                   clkRecord[retNum].endtime%100, clkRecord[retNum].duration);  //用 %s 输出 int 会发生段错误
-            retNum++;
+                   ret_num+1, record[ret_num].date/10000, record[ret_num].date/100%100,
+                   record[ret_num].date%100, record[ret_num].mark, record[ret_num].startime/100,
+                   record[ret_num].startime%100, record[ret_num].endtime/100,
+                   record[ret_num].endtime%100, record[ret_num].duration);  //用 %s 输出 int 会发生段错误
+            ret_num++;
 
-        } while ( ((retNum) < totalRecords) && clkRecord[retNum].mark==(clkRecord[retNum-1].mark+1) );  //不能让它访问越界
-    } else if (retNum == -1)
-        printf("no record found in %d/%.2d/%.2d.\n",searchDate/10000,searchDate/100%100,searchDate%100);
+        } while ( ((ret_num) < total_records) && record[ret_num].mark==(record[ret_num-1].mark+1) );  //不能让它访问越界
+    } else if (ret_num == -1)
+        printf("no record found in %d/%.2d/%.2d.\n",search_date/10000,search_date/100%100,search_date%100);
 
     return 0;
 }
 
 
 
-static int search(int searchDate)
+static int search(int search_date)
 {
     int i = 0;
-    for (; i < totalRecords; i++)     //这里如果在第一个分号之前加个 i，会报 statement with no effect 警告
-        if (searchDate == clkRecord[i].date)
+    for (; i < total_records; i++)     //这里如果在第一个分号之前加个 i，会报 statement with no effect 警告
+        if (search_date == record[i].date)
             return i;
-    if (i == totalRecords)
+    if (i == total_records)
         return -1;
 
     return -2;
@@ -459,18 +459,18 @@ static int search(int searchDate)
 
 
 
-static int writeToFile()
+static int write_to_file()
 {
     sort();
-    FILE *fp = fopen(filePath,"w+");
+    FILE *fp = fopen(file_path,"w+");
     if (fp != NULL) {
         fprintf(fp, "%2d%9s   %4s%7s%7s%7s\n",
-                totalRecords, "Date", "m", "stime", "etime", "dur");   
-        for (int i = 0; i< totalRecords; i++) {
+                total_records, "Date", "m", "stime", "etime", "dur");   
+        for (int i = 0; i< total_records; i++) {
             fprintf(fp, "%2d%6d/%.2d/%.2d%4d  %.2d:%.2d  %.2d:%.2d%7d\n",
-                    i+1,clkRecord[i].date/10000, clkRecord[i].date/100%100, clkRecord[i].date%100,
-                    clkRecord[i].mark, clkRecord[i].startime/100, clkRecord[i].startime%100,
-                    clkRecord[i].endtime/100, clkRecord[i].endtime%100, clkRecord[i].duration);
+                    i+1,record[i].date/10000, record[i].date/100%100, record[i].date%100,
+                    record[i].mark, record[i].startime/100, record[i].startime%100,
+                    record[i].endtime/100, record[i].endtime%100, record[i].duration);
         }
         fclose(fp);
     } else
@@ -481,7 +481,7 @@ static int writeToFile()
 
 
 
-static int parseArg(int argc, char **argv)
+static int parse_args(int argc, char **argv)
 {
     int opt, number = 0, date = 0, stime = 0, etime = 0;  //number 是第一列的编号
     int option_index = 0;
@@ -508,16 +508,16 @@ static int parseArg(int argc, char **argv)
             number = atoi(optarg);
             break;
         case 'D':
-            Del(atoi(optarg));
-            writeToFile();
+            del_record(atoi(optarg));
+            write_to_file();
             return 0;
         case 'H':
         case 'h':
-            showHelp();
+            show_help();
             break;
         case 'L':
         case 'l':
-            doList();
+            do_list();
             break;
         case 'V':
         case 'v':
@@ -528,7 +528,7 @@ static int parseArg(int argc, char **argv)
         }
     }
     if ((date+stime+etime) !=0) { //至少有一个不为0
-        if (changeRecord(number,date,stime,etime) == -1)
+        if (change_record(number,date,stime,etime) == -1)
             return -2;
     }
 
@@ -537,7 +537,7 @@ static int parseArg(int argc, char **argv)
 
 
 
-static int changeRecord(int number, int date, int stime, int etime)
+static int change_record(int number, int date, int stime, int etime)
 {
     int result, dayofw = 0;
 
@@ -554,7 +554,7 @@ static int changeRecord(int number, int date, int stime, int etime)
     if (number == 0) {            //增加记录
 #if 1
         if (date == 0) {
-            dayofw = dayOfWeek( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
+            dayofw = day_of_week( (tmp->tm_year+1900)*10000+(tmp->tm_mon+1)*100+tmp->tm_mday-1 ); //前一天是周几?
             if (tmp->tm_mday == 1)       //今天是 1 号，也就是不能再往前了
                 date = pre_date + tmp->tm_mday;
             else if (dayofw == 0)        //星期天
@@ -573,61 +573,61 @@ static int changeRecord(int number, int date, int stime, int etime)
         }
 #endif
         result = search(date);
-        totalRecords ++;
+        total_records ++;
 
         if (result == -1) {              //未找到记录，在最后添加
-            clkRecord[totalRecords-1].date = date;
-            clkRecord[totalRecords-1].mark = 1;
-            clkRecord[totalRecords-1].startime = stime;
-            clkRecord[totalRecords-1].endtime = etime;
-            calDuration(totalRecords-1);
+            record[total_records-1].date = date;
+            record[total_records-1].mark = 1;
+            record[total_records-1].startime = stime;
+            record[total_records-1].endtime = etime;
+            calculate_duration(total_records-1);
 
-            int ret = validRd(&clkRecord[totalRecords-1]);
+            int ret = validate_record(&record[total_records-1]);
             if (ret < 0) {
                 printf("date format error! ret = %d\n", ret);
-                totalRecords--;          //把最后一条排除在外，相当于删掉了
+                total_records--;          //把最后一条排除在外，相当于删掉了
             }
         } else {                         //找到记录，紧随其后添加
-            while (((result+1) < totalRecords-1) &&
-                   clkRecord[result+1].mark==(clkRecord[result].mark+1))  //找到mark值最大的一条记录
+            while (((result+1) < total_records-1) &&
+                   record[result+1].mark==(record[result].mark+1))  //找到mark值最大的一条记录
                 result++;
 
-            for (int i=totalRecords-1; i> result+1; i--) {                //向后腾出空间
-                clkRecord[i] = clkRecord[i-1];
+            for (int i=total_records-1; i> result+1; i--) {                //向后腾出空间
+                record[i] = record[i-1];
             }
-            clkRecord[result+1].date = date;
-            clkRecord[result+1].mark = clkRecord[result].mark + 1;
-            clkRecord[result+1].startime= stime;
-            clkRecord[result+1].endtime= etime;
-            calDuration(result+1);
+            record[result+1].date = date;
+            record[result+1].mark = record[result].mark + 1;
+            record[result+1].startime= stime;
+            record[result+1].endtime= etime;
+            calculate_duration(result+1);
 
-            if (validRd(&clkRecord[result+1]) < 0) {
+            if (validate_record(&record[result+1]) < 0) {
                 printf("date format error!\n");
-                Del(result+2);
+                del_record(result+2);
             }
         }
-    } else if (number > 0 && number <= totalRecords) {    //修改记录
+    } else if (number > 0 && number <= total_records) {    //修改记录
         number --;
 
-        clkRecord[totalRecords] = clkRecord[number];      //clkRecord[totalRecords] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
-        clkRecord[totalRecords].startime = stime;
-        clkRecord[totalRecords].endtime = etime;
+        record[total_records] = record[number];      //record[total_records] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
+        record[total_records].startime = stime;
+        record[total_records].endtime = etime;
 
-        if (validRd(&clkRecord[totalRecords]) >= 0) {
-            clkRecord[number] = clkRecord[totalRecords];
-            calDuration(number);
+        if (validate_record(&record[total_records]) >= 0) {
+            record[number] = record[total_records];
+            calculate_duration(number);
         } else
             printf("date format error!\n");
     }
 
-    writeToFile();
+    write_to_file();
 
     return 0;
 }
 
 
 
-static int showHelp()
+static int show_help()
 {
     printf("Usage: overtime [-hlv] [-d day] [-s stime] [-e etime] [-M number] [-D number]\n\n");
     printf("Options:\n"
@@ -646,16 +646,16 @@ static int showHelp()
 
 
 
-static int calDuration(int i)
+static int calculate_duration(int i)
 {
     int shour, smin, ehour, emin, dur;
 
-    shour = clkRecord[i].startime / 100;
-    smin = clkRecord[i].startime % 100;
-    ehour = clkRecord[i].endtime / 100;
-    emin = clkRecord[i].endtime % 100;
+    shour = record[i].startime / 100;
+    smin = record[i].startime % 100;
+    ehour = record[i].endtime / 100;
+    emin = record[i].endtime % 100;
     dur = (ehour-shour)*60 + emin - smin;
-    clkRecord[i].duration = (dur < 30) ? 0 : dur;
+    record[i].duration = (dur < 30) ? 0 : dur;
 
     return 0;
 }
@@ -664,15 +664,15 @@ static int calDuration(int i)
 
 static int sort()
 {
-    ClockinRecord recordTmp;
-    for (int i=0; i< totalRecords-1; i++) {
-        for (int j=i+1; j< totalRecords; j++) {
-            if (clkRecord[j].date < clkRecord[i].date
-                || (clkRecord[j].date == clkRecord[i].date
-                    && clkRecord[j].mark < clkRecord[i].mark)) {
-                recordTmp = clkRecord[i];
-                clkRecord[i] = clkRecord[j];
-                clkRecord[j] = recordTmp;
+    clockin_record_t record_tmp;
+    for (int i=0; i< total_records-1; i++) {
+        for (int j=i+1; j< total_records; j++) {
+            if (record[j].date < record[i].date
+                || (record[j].date == record[i].date
+                    && record[j].mark < record[i].mark)) {
+                record_tmp = record[i];
+                record[i] = record[j];
+                record[j] = record_tmp;
             }
         }
     }
@@ -682,15 +682,15 @@ static int sort()
 
 
 
-static int validRd( ClockinRecord * recordTmp )
+static int validate_record(clockin_record_t * record_tmp )
 {
-    if ( (recordTmp->date%100) > daysInaMonth( tmp->tm_year+1900, tmp->tm_mon+1 ) || (recordTmp->date%100) < 1 )
+    if ( (record_tmp->date%100) > day_in_month( tmp->tm_year+1900, tmp->tm_mon+1 ) || (record_tmp->date%100) < 1 )
         return -1;              //日期超出范围
-    else if (recordTmp->startime >= recordTmp->endtime    //开始时间居然比结束时间还晚?!
-             || recordTmp->startime%100 > 59 || recordTmp->startime%100 < 0
-             || recordTmp->startime/100 > 23 || recordTmp->startime/100 < 0
-             || recordTmp->endtime%100 > 59 || recordTmp->endtime%100 < 0
-             || recordTmp->endtime/100 > 23 || recordTmp->endtime/100 < 0)
+    else if (record_tmp->startime >= record_tmp->endtime    //开始时间居然比结束时间还晚?!
+             || record_tmp->startime%100 > 59 || record_tmp->startime%100 < 0
+             || record_tmp->startime/100 > 23 || record_tmp->startime/100 < 0
+             || record_tmp->endtime%100 > 59 || record_tmp->endtime%100 < 0
+             || record_tmp->endtime/100 > 23 || record_tmp->endtime/100 < 0)
         return -2;
     else {
 

@@ -3,7 +3,7 @@
 
 //char clearInput;
 
-int daysInaMonth( int year, int month)
+int day_in_month( int year, int month)
 { 
     int days;
     
