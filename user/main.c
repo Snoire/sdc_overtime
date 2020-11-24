@@ -104,8 +104,8 @@ int main(int argc, char **argv)
                 break;
             default:
                 printf("invalid option.\n");
-            }                   //switch end..
-        }                       //while end
+            }   /* end of switch ret */
+        }   /* end of while loop */
         printf("^D\nbye..\n\n");
     }
     if (ret_parse_args == -1)
