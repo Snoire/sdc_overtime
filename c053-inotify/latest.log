@@ -1,0 +1,18 @@
+NO LOG FILE! - setting up server logging...
+[2020-05-05 04:00:20 INFO] Starting Server
+[2020-05-05 04:00:20 INFO] Version 1.14.30.2
+[2020-05-05 04:00:20 INFO] Session ID 93f500ce-f5d0-463c-970e-e432a00fd91c
+[2020-05-05 04:00:20 INFO] Level Name: survival-1
+[2020-05-05 04:00:20 INFO] Game mode: 0 Survival
+[2020-05-05 04:00:20 INFO] Difficulty: 1 EASY
+[2020-05-05 04:00:22 INFO] IPv4 supported, port: 19132
+[2020-05-05 04:00:22 INFO] IPv6 not supported
+[2020-05-05 04:00:22 INFO] IPv4 supported, port: 45014
+[2020-05-05 04:00:22 INFO] IPv6 not supported
+[2020-05-05 04:00:24 INFO] Server started.
+[2020-05-05 12:53:56 INFO] Player connected: Purark, xuid: 2535415870084419
+[2020-05-05 12:54:35 INFO] Player disconnected: Purark, xuid: 2535415870084419
+[2020-05-05 12:54:44 INFO] Player connected: Purark, xuid: 2535415870084419
+[2020-05-05 12:55:06 INFO] Player disconnected: Purark, xuid: 2535415870084419
+[2020-05-04 13:37:15 INFO] Player disconnected: HumbleJoker3641, xuid: 2535430826641590
+[2020-05-04 13:37:08 INFO] Player connected: misssmay, xuid: 2535436539706490

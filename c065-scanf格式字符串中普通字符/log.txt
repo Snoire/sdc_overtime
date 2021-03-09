@@ -1,0 +1,7 @@
+logId<11243253409238490283094802938049823949238> Jan  1 00:00:52 syslog.info: EWMTA24 VoIP restart
+logId<2> Jan  1 00:00:52 syslog.info: EWMTA24 WAN is UP 1000M/full
+logId<3> Jan  1 00:01:00 syslog.info: EWMTA24 NGN-Stack start-up
+logId<4> Jan  1 00:01:00 syslog.info: EWMTA24 NGN-Stack start-up success
+logId<5> Jan  1 00:01:08 logalert.warning: EWMTA24 ICMPv6 RA not Receive
+logId<6> Jan  1 00:01:24 syslog.info: EWMTA24 had finished system initialization
+logId<7> Jan  1 00:01:32 syslog.info: EWMTA24 web-ui access Non-Auth Page Wired IP exist

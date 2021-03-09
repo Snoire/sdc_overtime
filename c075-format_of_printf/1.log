@@ -1,0 +1,53 @@
+Oct/26/2020 19:41:28: server6_recv: received solicit from fe80::6d15:e10d:c797:8265%br0
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option elapsed time, len 2
+Oct/26/2020 19:41:28:   elapsed time: 6301
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option client ID, len 14
+Oct/26/2020 19:41:28:   DUID: 00:01:00:01:24:f9:0e:11:e4:54:e8:2c:5a:6e
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option identity association, len 12
+Oct/26/2020 19:41:28:   IA_NA: ID=207390620, T1=0, T2=0
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option client FQDN, len 16
+Oct/26/2020 19:41:28: dhcp6_get_options: unknown or unexpected DHCP6 option client FQDN, len 16
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option vendor class, len 14
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option option request, len 8
+Oct/26/2020 19:41:28:   requested option: vendor specific info
+Oct/26/2020 19:41:28:   requested option: DNS
+Oct/26/2020 19:41:28:   requested option: domain search list
+Oct/26/2020 19:41:28:   requested option: client FQDN
+Oct/26/2020 19:41:28: react_solicit: client ID 00:01:00:01:24:f9:0e:11:e4:54:e8:2c:5a:6e
+Oct/26/2020 19:41:28: react_solicit: found a host configuration for EWMTA2_4
+[31;1;4mOct/26/2020 19:41:28: find_client: found old client: 00:01:00:01:24:f9:0e:11:e4:54:e8:2c:5a:6e
+[0m
+Oct/26/2020 19:41:28: copy_option: set client ID (len 14)
+Oct/26/2020 19:41:28: copy_option: set server ID (len 10)
+Oct/26/2020 19:41:28: copy_option: set vendor specific info (len 75)
+Oct/26/2020 19:41:28: copy_option: set preference (len 1)
+Oct/26/2020 19:41:28: copy_option: set status code (len 2)
+Oct/26/2020 19:41:28: copy_option: set SIP server address (len 16)
+Oct/26/2020 19:41:28: copy_option: set DNS (len 16)
+Oct/26/2020 19:41:28: server6_send: transmit advertise to fe80::6d15:e10d:c797:8265%br0
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option client ID, len 14
+Oct/26/2020 19:41:28:   DUID: 00:01:00:01:24:f9:0e:11:e4:54:e8:2c:5a:6e
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option server ID, len 10
+Oct/26/2020 19:41:28:   DUID: 00:03:00:01:00:c0:02:ff:22:06
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option vendor specific info, len 75
+Oct/26/2020 19:41:28: dhcp6_get_options: receive vendor_info enterprise number is 210
+Oct/26/2020 19:41:28: handle_vinfo: get DHCP sub option 201, len 6
+Oct/26/2020 19:41:28: handle_vinfo: suboption mac_cpe:00c002ff2207
+Oct/26/2020 19:41:28: handle_vinfo: get DHCP sub option 202, len 10
+Oct/26/2020 19:41:28: handle_vinfo: suboption phone_num:0451110011
+Oct/26/2020 19:41:28: handle_vinfo: get DHCP sub option 204, len 14
+Oct/26/2020 19:41:28: handle_vinfo: suboption sip_domain:
+Oct/26/2020 19:41:28: handle_vinfo: get DHCP sub option 210, len 25
+Oct/26/2020 19:41:28: handle_vinfo: suboption fqdn:
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option preference, len 1
+Oct/26/2020 19:41:28:   preference: 255
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option status code, len 2
+Oct/26/2020 19:41:28:   status code: no addresses
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option SIP server address, len 16
+Oct/26/2020 19:41:28: dhcp6_get_options: get DHCP option DNS, len 16
+
+view @ EWMTA2.4> 
+view @ EWMTA2.4> 
+view @ EWMTA2.4> 
+view @ EWMTA2.4> 
+view @ EWMTA2.4> 

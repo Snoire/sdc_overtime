@@ -1,0 +1,6 @@
+char a: |-1|, |ÿ|, |0XFFFFFFFF|
+char b: |16|, ||, |0X10|
+char c: |-240|, ||, |0XFFFFFF10|
+char d: |-1|, |ÿ|, |0XFFFFFFFF|
+char e: |-1|, |ÿ|, |0XFFFFFFFF|
+str: |ÿ|
