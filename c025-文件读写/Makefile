@@ -19,4 +19,4 @@ fprintf.o : fprintf.c
 	cc -c $^
 
 clean :
-	rm -f *.o $(OBJS) write2.txt
+	rm -f *.o $(OBJS) rewind.txt write2.txt

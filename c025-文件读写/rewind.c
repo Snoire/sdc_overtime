@@ -11,7 +11,7 @@ int main()
     b = a;
     a = 0;
     
-    FILE *fp = fopen("./test2.txt", "w+");
+    FILE *fp = fopen("./rewind.txt", "w+");
     fprintf(fp, "%llu\n", b);
     fflush(fp);
 
