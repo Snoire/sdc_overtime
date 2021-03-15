@@ -1,5 +1,6 @@
 .PHONY : all clean
-OBJS = write read fprintf
+#OBJS = write read fprintf
+OBJS += $(patsubst %.c,%,$(wildcard *.c))
 all : $(OBJS)
 
 write : write.o
@@ -18,4 +19,4 @@ fprintf.o : fprintf.c
 	cc -c $^
 
 clean :
-	rm -f *.o $(OBJS)
+	rm -f *.o $(OBJS) write2.txt
