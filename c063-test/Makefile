@@ -24,4 +24,4 @@ echo :
 	@echo $(OBJS)
 
 clean :
-	-rm -f $(OBJS) *~ *.o unlink.txt rename.new
+	-rm -f $(OBJS) *~ *.o unlink.txt rename.old rename.new
