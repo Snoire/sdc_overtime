@@ -506,6 +506,41 @@ static int write_to_file()
 }
 
 
+/**
+ *  Usage:
+ *  overtime batch << EOF
+ *  1 1855
+ *  2 1300, 2000
+ *  3 2005
+ *  EOF
+ */
+
+static void ot_batch()
+{
+    int number = 0, ret;
+    int date, stime, etime;
+
+    while (!feof(stdin)) {
+        if ((ret = scanf("%d %d, %d\n", &date, &stime, &etime)) == 2) {
+            etime = stime;
+            stime = 1800;
+            scanf("\n");           //吃掉换行符
+
+            /* 为什么这么写如果没加 break 最后会多一次循环？
+             * 虽然也把最后的换行符取出来了，但好像没有设置 EOF
+             * 总感觉 feof 函数不靠谱呀 */
+            /* scanf("%*c"); */
+        }
+
+        if (ret == 2 || ret == 3) {
+            change_record(number, pre_date + date, stime, etime);
+        } else {
+            break;
+        }
+    }
+}
+
+
 
 static int parse_args(int argc, char **argv)
 {
@@ -542,14 +577,14 @@ static int parse_args(int argc, char **argv)
         case 'H':
         case 'h':
             show_help();
-            break;
+            return 0;
         case 'L':
         case 'l':
             do_list();
             break;
         case 'V':
         case 'v':
-            printf("overtime: version 1.1.6\n");
+            printf("overtime: version 1.2.0\n");
             break;
         default:
             return -1;
@@ -561,7 +596,19 @@ static int parse_args(int argc, char **argv)
             return -2;
     }
 
-    return 0;                     //返回0的话，就是正常解析选项
+    if (optind > 1)
+        argv[optind - 1] = argv[0];
+    argv += optind - 1;
+    argc -= optind - 1;
+
+    if (argc > 1) {
+        if (!strcasecmp(argv[1], "batch"))
+            ot_batch();
+        else
+            show_help();
+    }
+
+    return 0;                   //返回0的话，就是正常解析选项
 }
 
 
