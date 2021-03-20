@@ -3,7 +3,7 @@
 int opt(int argc, char *argv[])
 {
     int ch;
-    opterr = 0;                 //设置为0就不会输出错误到 stderr
+    opterr = 1;                 //设置为0就不会输出错误到 stderr
     printf("optind:%d，opterr：%d\n", optind, opterr);
     printf("--------------------------\n\n");
     while ((ch = getopt(argc, argv, "ab:c:de::")) != -1) {

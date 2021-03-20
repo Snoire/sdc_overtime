@@ -15,7 +15,6 @@ c005-\(字符\)数组与指针 \
 c006-snprintf \
 c007-sprintf_snprintf \
 c008-getopt \
-c009-getopt多次执行后 \
 c010-字符串与指针与段错误 \
 c011-NULL和空字符串的值是否为0 \
 c012-前自增后自增 \
@@ -89,6 +88,7 @@ c080-结构体里的成员数组和指针 \
 c081-callback_func \
 c082-Makefile
 
+#c009 \
 #c067-两头文件中包含同一个变量定义 \
 #c083-link
 
