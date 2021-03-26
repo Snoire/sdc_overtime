@@ -7,7 +7,8 @@
 # ar=(*(/))
 # print -lr ${(q)ar}
 
-DIRS = 	c001-递归解决分鱼问题 \
+DIRS = asm \
+c001-递归解决分鱼问题 \
 c002-递归解决年龄问题 \
 c003-printf转义 \
 c004-二维数组指针 \
@@ -83,7 +84,7 @@ c075-format_of_printf \
 c076-fmemopen \
 c077-get_ipv6_prefix \
 c078-rpath \
-c079-printf_format \
+c079-ether_aton \
 c080-结构体里的成员数组和指针 \
 c081-callback_func \
 c082-Makefile

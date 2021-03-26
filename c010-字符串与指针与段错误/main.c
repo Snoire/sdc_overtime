@@ -18,7 +18,7 @@ int main()
     printf("sizeof(ppstr )= %d\n\n",sizeof(ppstr ));
 
     printf("str[1]=%s\n",str[1]);
-    printf("str[1][2]=%c\n",str[1][2]);  //这里访问的是一个字符，如果用 %s ，就会发生 segmentation fault ，估计一直没碰到 \0，访问到无权访问的空间了
+    printf("str[1][2]=%c\n",str[1][2]);  //这里访问的是一个字符，如果用 %s ，就会发生 segmentation fault ，把字符（数字）当成地址来访问了，肯定会出错
 
     printf("pstr[1]=%s\n",pstr[1]);
     printf("pstr[1][2]=%c\n",pstr[1][2]);

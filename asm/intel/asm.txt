@@ -1,0 +1,61 @@
+# https://www.youtube.com/watch?v=VQAKkuLL31g&list=PLetF-YjXm-sCH6FrTz4AQhfH6INDQvQSn&index=1
+
+| 8-bit | 16-bit | 32-bit | 64-bit |
+| ----- | ------ | ------ | ------ |
+| al    | ax     | eax    | rax    |
+| bl    | bx     | ebx    | rbx    |
+| cl    | cx     | ecx    | rcx    |
+| dl    | dx     | edx    | rdx    |
+| sil   | si     | esi    | rsi    |
+| dil   | di     | edi    | rdi    |
+| bpl   | bp     | ebp    | rbp    |
+| spl   | sp     | esp    | rsp    |
+| r8b   | r8w    | r8d    | r8     |
+| r9b   | r9w    | r9d    | r9     |
+| r10b  | r10w   | r10d   | r10    |
+| r11b  | r11w   | r11d   | r11    |
+| r12b  | r12w   | r12d   | r12    |
+| r13b  | r13w   | r13d   | r13    |
+| r14b  | r14w   | r14d   | r14    |
+| r15b  | r15w   | r15d   | r15    |
+
+
+
++--------------------------- 64-bit register ---------------------------+
+|                                                                       |
+ 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+|                                   |                 |        |        |
+|                                   |                 |        +-- al --+
+|                                   |                 |                 |
+|                                   |                 +------- ax ------+
+|                                   |                                   |
+|                                   +--------------- eax ---------------+
+|                                                                       |
++--------------------------------- rax ---------------------------------+
+
+
+# System Call Inputs by Register (On x86_64)
+
+| Argument | Registers |
+|   ID     |    rax    |
+|   1      |    rdi    |
+|   2      |    rsi    |
+|   3      |    rdx    |
+|   4      |    r10    |
+|   5      |    r8     |
+|   6      |    r9     |
+
+
+
+# System Call List
+
+| syscall   | ID  |       arg1      |  arg2   |  arg3  | arg4 | arg5 | arg6 |
+| sys_read  | 0   | #filedescriptor | $buffer | #count |      |      |      |
+| sys_write | 1   | #filedescriptor | $buffer | #count |      |      |      |
+| sys_open  | 2   | $filename       | #flags  | #mode  |      |      |      |
+| sys_close | 3   | #filedescriptor |         |        |      |      |      |
+|    ...    | ... |       ...       |   ...   |  ...   | ...  | ...  | ...  |
+| sys_exit  | 60  | #errorcode      |         |        |      |      |      |
+|    ...    | ... |       ...       |   ...   |  ...   | ...  | ...  | ...  |
+| pwwritev2 | 328 |       ...       |   ...   |  ...   | ...  | ...  | ...  |
+

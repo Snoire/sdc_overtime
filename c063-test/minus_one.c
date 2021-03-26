@@ -8,5 +8,8 @@ int main()
     printf("a: %u\n", (unsigned int) a);
     printf("b: %u\n", b);
 
+    if ((int) b <= 0)
+        printf("b: %d\n", b);
+
     return 0;
 }
