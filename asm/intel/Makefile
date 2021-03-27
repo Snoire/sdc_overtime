@@ -1,4 +1,4 @@
-all : hello helloc
+all : hello helloc input
 
 # "Hello World!"
 hello : hello.o
@@ -10,5 +10,12 @@ hello.o : hello.asm
 helloc : hello.c
 	cc hello.c -o helloc
 
+# Getting User Input
+input : input.o
+	ld $< -o $@
+
+input.o : input.asm
+	nasm -f elf64 -o $@ $<
+
 clean :
-	rm -f *.o hello helloc
+	rm -f *.o hello helloc input

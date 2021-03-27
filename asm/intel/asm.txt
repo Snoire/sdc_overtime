@@ -59,3 +59,123 @@
 |    ...    | ... |       ...       |   ...   |  ...   | ...  | ...  | ...  |
 | pwwritev2 | 328 |       ...       |   ...   |  ...   | ...  | ...  | ...  |
 
+
+# Flags
+Flags only hold 1 bit each. They are either 'true' or 'false'.
+Individual flags are part of a larger register.
+
+| Flag Symbol |        Description         |
+|     CF      |           Carry            |
+|     PF      |          Parity            |
+|     ZF      |           Zero             |
+|     SF      |           Sign             |
+|     OF      |         Overflow           |
+|     AF      |          Adjust            |
+|     IF      |     Interrupt Enabled      |
+
+
+# Pointers
+Pointers are also registers that hold data.
+They "point to" data, meaning, they hold its memory address.
+
+| Pointer Name  |   Meaning          |                  Description                               |
+| rip (eip, ip) | Index pointer      | Points to next address to be executed in the control flow. |
+| rsp (esp, sp) | Stack pointer      | Points to the top address of the stack.                    |
+| rbp (ebp, bp) | Stack base pointer | Points to the bottom of the stack.                         |
+|     ...       |    ...             |                     ...                                    |
+
+
+# Comparisons with Flags
+After a comparison is made, certain flags are set.
++--------------------------------------+
+|             cmp a, b                 |
++---------+----------------------------+
+|  a = b  |          ZF = 1            |
+|  a != b |          ZF = 0            |
+|    -    |        SF = msb(a-b)       |
+|   ...   |           ...              |
++---------+----------------------------+
+
+
+# Conditional jumps
+Conditional jumps are based on the status of the flags.
+
+| Jump symbol (signed)  | Jump symbol (unsigned)   |  Results of cmp a, b           |
+|        je             |           -              |        a  = b                  |
+|        jne            |           -              |        a != b                  |
+|        jg             |          ja              |        a  > b                  |
+|        jge            |          jae             |        a >= b                  |
+|        jl             |          jb              |        a  < b                  |
+|        jle            |          jbe             |        a <= b                  |
+|        jz             |           -              |        a  = 0                  |
+|        jnz            |           -              |        a != 0                  |
+|        jo             |           -              |    Overflow occurred           |
+|        jno            |           -              |   Overflow did not occur       |
+|        js             |           -              |     Jump if signed             |
+|        jns            |           -              |   Jump if not signed           |
+
+
+# Registers as Poniters
+The default registers can be treadted as pointers.
++------------------+-----------------------------------------------------------------------+
+| mov rax, rbx     | loads the value in the rbx register into the rax register             |
+| mov rax, [rbx]   | loads the value the rbx register is pointing to into the rax register |
+| mov rax, [lable] | ???                                                                   |
+| mov [lable], rbx | ???                                                                   |
++------------------+-----------------------------------------------------------------------+
+
+# Calls
+Calls and jumps are essentially the same.
+However, when "call" is used, the original position the call was made can be returned to using "ret".
+
+
+
+
+# Math Operations List
+
+|  Operation Name   | Operation Name (signed) |     Description      |
+|    add a, b       |          -              |      a = a + b       |
+|    sub a, b       |          -              |      a = a - b       |
+|    mul reg        |       imul reg          |    rax = rax * reg   |
+|    div reg        |       idiv reg          |    rax = rax / reg   |
+|    neg reg        |          -              |      reg = -reg      |
+|    inc reg        |          -              |    reg = reg + 1     |
+|    dec reg        |          -              |    reg = reg - 1     |
+|    adc a, b       |          -              |    a = a + b + CF    |
+|    sbb a, b       |          -              |    a = a - b - CF    |
+
+
+# Stack Operations
++-----------------+-------------------------------------------------+
+| push reg/value  | pushes a value onto the stack                   |
+|   pop reg       | pops a value off the stack and stores it in reg |
+| mov reg, [rsp]  | stores the peek value in reg                    |
++-----------------+-------------------------------------------------+
+Usually in places where you can use registers, you can also use pointers.
+Such as, instead of "pop reg", you can use "pop [lable]" to pop a value off the stack directly into a position in memory.
+
+
+# Push
+
+ Peek: NULL                   Peek: 4                     Peek: 8                    Peek: 3
+ |       |                   |       |                   |       |                  |       |
+ |       |                   |       |                   |       |                  |-------|
+ |       |      push 4       |       |      push 8       |       |      push 3      |   3   |
+ |       |   ----------->    |       |   ----------->    |-------|   ----------->   |-------|
+ |       |                   |       |                   |   8   |                  |   8   |
+ |       |                   |-------|                   |-------|                  |-------|
+ |       |                   |   4   |                   |   4   |                  |   4   |
+ +-------+                   +-------+                   +-------+                  +-------+
+
+# Pop
+
+  Peek: 3                     Peek: 8                     Peek: 4                   Peek: NULL
+ |       |                   |       |                   |       |                  |       |
+ |-------|                   |       |                   |       |                  |       |
+ |   3   |     pop rax       |       |     pop rax       |       |     pop rax      |       |
+ |-------|   ----------->    |-------|   ----------->    |       |   ----------->   |       |
+ |   8   |                   |   8   |                   |       |                  |       |
+ |-------|                   |-------|                   |-------|                  |       |
+ |   4   |                   |   4   |                   |   4   |                  |       |
+ +-------+                   +-------+                   +-------+                  +-------+
+ rax: NULL                    rax: 3                      rax: 8                     rax: 4

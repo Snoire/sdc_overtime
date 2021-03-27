@@ -11,12 +11,11 @@ section .text
 
 _start:
         mov rax, 1        ; -+
-        mov rdi, 1        ;  |  
+        mov rdi, 1        ;  |
         mov rsi, text     ;  | sys_write(1, text, 14)
         mov rdx, 14       ;  |
         syscall           ; -+
 
-        mov rax, 60       ; -+ 
+        mov rax, 60       ; -+
         mov rdi, 0        ;  | sys_exit(0)
         syscall           ; -+
-
