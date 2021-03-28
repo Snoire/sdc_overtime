@@ -1,5 +1,4 @@
-#DIRS = at\&t intel
-DIRS = intel
+DIRS = at\&t intel
 
 
 BUILD_DIRS = ${DIRS}
