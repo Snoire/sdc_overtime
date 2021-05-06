@@ -79,8 +79,12 @@ int serv_listen()
     struct sockaddr_in ser_sockaddr;
 
     /* create a stream socket */
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         return (-1);
+    }
+
+    int opt = 1;
+    setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     /* fill in socket address structure */
     memset(&ser_sockaddr, 0, sizeof(ser_sockaddr)); //bzero ok

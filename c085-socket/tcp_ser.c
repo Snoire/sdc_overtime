@@ -18,7 +18,7 @@ int main(void)
 	char buf[MAXLINE];
 	char str[INET_ADDRSTRLEN];
 	int i, n;
-    int ret;
+	int ret;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -26,11 +26,15 @@ int main(void)
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port = htons(SERV_PORT);
-    
+
+	int opt = 1;
+	setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	
 	if ( (ret = bind(listenfd, (struct sockaddr *)&servaddr, sizeof(servaddr))) < 0) {
-        printf("ret: %d\n", ret);
-        perror("bind");
-    }
+		printf("ret: %d\n", ret);
+		/* 这里 bind 会随机分一个端口 */
+		perror("bind");
+	}
 
 	listen(listenfd, 20);
 
@@ -42,9 +46,9 @@ int main(void)
 	  
 		n = read(connfd, buf, MAXLINE);
 		printf("received from %s at PORT %d\n",
-		       inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)),
-		       ntohs(cliaddr.sin_port));
-    
+				inet_ntop(AF_INET, &cliaddr.sin_addr, str, sizeof(str)),
+				ntohs(cliaddr.sin_port));
+
 		for (i = 0; i < n; i++)
 			buf[i] = toupper(buf[i]);
 		write(connfd, buf, n);
