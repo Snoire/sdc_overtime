@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stddef.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -26,7 +25,7 @@
 #define QLEN 10
 
 #define DATA_FILE_PATH   "/tmp/ot_%s_data_%d.txt"
-#define LISTEN_SOCKET    "overtime.socket"
+#define SERV_PORT       2569
 #define MAX_LEN_OF_ONE_LINE 40
 
 char file_path[256] = "";
@@ -72,28 +71,25 @@ int ot_process(int mode, int date, int data);
 /*
  * Create a server endpoint of a connection.
  * Returns fd if all OK, <0 on error.
- * name : file_name
  */
-int serv_listen(const char *name)
+int serv_listen()
 {
-    int fd, len, err, rval;
-    struct sockaddr_un un;
+    int fd, err, rval;
+//    struct sockaddr_un un;
+    struct sockaddr_in ser_sockaddr;
 
-    /* create a UNIX domain stream socket */
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+    /* create a stream socket */
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return (-1);
 
-    /* in case it already exists */
-    unlink(name);
-
     /* fill in socket address structure */
-    memset(&un, 0, sizeof(un)); //bzero ok
-    un.sun_family = AF_UNIX;
-    strcpy(un.sun_path, name);
-    len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
+    memset(&ser_sockaddr, 0, sizeof(ser_sockaddr)); //bzero ok
+    ser_sockaddr.sin_family = AF_INET;
+    ser_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+    ser_sockaddr.sin_port = htons(SERV_PORT);
 
-    /* bind the name to the descriptor */
-    if (bind(fd, (struct sockaddr *) &un, len) < 0) {
+    /* bind the ser_sockaddr to the descriptor */
+    if (bind(fd, (struct sockaddr *) &ser_sockaddr, sizeof(ser_sockaddr)) < 0) {
         rval = -2;
         goto errout;
     }
@@ -112,45 +108,16 @@ errout:
     return (rval);
 }
 
-/*uidptr: in/out param which shows the caller*/
-int serv_accept(int listenfd, uid_t * uidptr)
+int serv_accept(int listenfd)
 {
-    int clifd, len, err, rval;
-    struct sockaddr_un un;
-    struct stat statbuf;        /*display file or file system status */
+    int clifd, len;
+    struct sockaddr_in cli_sockaddr;
 
-    len = sizeof(un);           /*watch out here */
-    if ((clifd = accept(listenfd, (struct sockaddr *) &un, (socklen_t *) &len)) < 0)
+    len = sizeof(cli_sockaddr);           /*watch out here */
+    if ((clifd = accept(listenfd, (struct sockaddr *) &cli_sockaddr, (socklen_t *) &len)) < 0)
         return (-1);            /* often errno=EINTR, if signal caught */
 
-    /* obtain the client's uid from its calling address */
-    len -= offsetof(struct sockaddr_un, sun_path);      /* len of pathname */
-    un.sun_path[len] = 0;       /* null terminate */
-
-    if (stat(un.sun_path, &statbuf) < 0) {
-        rval = -2;
-        goto errout;
-    }
-
-    if (S_ISSOCK(statbuf.st_mode) == 0) {
-        rval = -3;              /* not a socket */
-        goto errout;
-    }
-
-    if (uidptr != NULL)
-        *uidptr = statbuf.st_uid;       /* return uid of caller */
-
-    /* we're done with pathname now */
-    unlink(un.sun_path);
-//    printf("unlink %s\n", un.sun_path);
-
     return (clifd);
-
-errout:
-    err = errno;
-    close(clifd);
-    errno = err;
-    return (rval);
 }
 
 
@@ -158,14 +125,13 @@ int cfd;
 int main(int argc, char **argv)
 {
     int lfd, n;
-    uid_t cuid;
     int buf[3] = {0};
 
     signal(SIGINT, sighandler);
     init();
-    lfd = serv_listen(LISTEN_SOCKET);
+    lfd = serv_listen();
     while (1) {
-        cfd = serv_accept(lfd, &cuid);
+        cfd = serv_accept(lfd);
 
         while (1) {
 r_again:
@@ -184,7 +150,6 @@ r_again:
         }
     }
 
-    unlink(LISTEN_SOCKET);
     return 0;
 }
 

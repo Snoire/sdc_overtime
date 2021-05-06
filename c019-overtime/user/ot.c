@@ -7,11 +7,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/un.h>
+#include <arpa/inet.h>
 #include <errno.h>
 #include <pwd.h>
 #include <signal.h>
-#include <stddef.h>
 
 #include "day_of_week.h"
 #include "day_in_month.h"
@@ -22,7 +21,7 @@
 #define STIM          1800
 #define ETIM          2000
 
-#define LISTEN_SOCKET    "overtime.socket"
+#define SERV_PORT       2569
 
 int total_records = 0;          //总记录数
 
@@ -51,40 +50,27 @@ static int show_help();
 static void sighandler(int);
 int ot_process(int mode, int date, int data);
 
-#define CLI_PATH "/var/tmp/"    /* +5 for pid = 14 chars */
-char buf[2048] = "";
+char buf[2440] = "";
 /*
  * Create a client endpoint and connect to a server.
  * Returns fd if all OK, <0 on error.
  */
-int cli_conn(const char *name)
+int cli_conn(char *server_ip)
 {
-    int fd, len, err, rval;
-    struct sockaddr_un un;
+    int fd, err, rval;
+    struct sockaddr_in ser_sockaddr;
 
-    /* create a UNIX domain stream socket */
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0)
+    /* create a socket */
+    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
         return (-1);
 
-    /* fill socket address structure with our address */
-    memset(&un, 0, sizeof(un));
-    un.sun_family = AF_UNIX;
-    sprintf(un.sun_path, "%s%05d", CLI_PATH, getpid());
-    len = offsetof(struct sockaddr_un, sun_path) + strlen(un.sun_path);
-    unlink(un.sun_path);        /* in case it already exists */
-
-    if (bind(fd, (struct sockaddr *) &un, len) < 0) {
-        rval = -2;
-        goto errout;
-    }
-
     /* fill socket address structure with server's address */
-    memset(&un, 0, sizeof(un));
-    un.sun_family = AF_UNIX;
-    strcpy(un.sun_path, name);
-    len = offsetof(struct sockaddr_un, sun_path) + strlen(name);
+    memset(&ser_sockaddr, 0, sizeof(ser_sockaddr));
+    ser_sockaddr.sin_family = AF_INET;
+    inet_pton(AF_INET, server_ip, &ser_sockaddr.sin_addr);
+    ser_sockaddr.sin_port = htons(SERV_PORT);
 
-    if (connect(fd, (struct sockaddr *) &un, len) < 0) {
+    if (connect(fd, (struct sockaddr *) &ser_sockaddr, sizeof(ser_sockaddr)) < 0) {
         rval = -4;
         goto errout;
     }
@@ -162,9 +148,14 @@ int main(int argc, char **argv)
 
     signal(SIGINT, sighandler);
     init();
-    fd = cli_conn(LISTEN_SOCKET);
-//    if (fd >= 0)
-//        printf("connected\n");
+    fd = cli_conn(argv[1]);
+    if (fd < 0) {
+        fprintf(stderr, "failed to connect to server\n");
+        return -1;
+    }
+
+    argc--;
+    argv++;
 
     if (argc == 1)                  //进入交互界面
         interactive_loop();
@@ -391,9 +382,7 @@ static int do_modify()
 
 static int do_search()
 {
-//    int value = 0, search_date = 0, ret_num;
     int value = 0, search_date = 0;
-//    char buf[2048] = "";
     printf("which day do you want to search: ");
 
     for (int i = 0; i < 2; i++) {
@@ -509,7 +498,7 @@ static int parse_args(int argc, char **argv)
             break;
         case 'V':
         case 'v':
-            printf("overtime: version 2.0.0\n");
+            printf("overtime: version 2.1.0\n");
             break;
         default:
             return -1;
@@ -559,10 +548,6 @@ static int show_help()
 
 int ot_process(int mode, int date, int data)
 {
-//    printf("%d %d %d\n", mode, date, data);
-//    write(fd, &mode, sizeof(int));
-//    write(fd, &date, sizeof(int));
-//    write(fd, &data, sizeof(int));
     int buf[3];
     buf[0] = mode;
     buf[1] = date;

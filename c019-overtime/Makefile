@@ -1,6 +1,6 @@
 compile_start_time := $(shell date +%s)
 #CFLAGS = -I./include -Wall -Werror
-CFLAGS = -I./include -Wall
+CFLAGS = -I./include -Wall -g
 
 #objs := user/main.o
 objs += user/day_of_week.o
