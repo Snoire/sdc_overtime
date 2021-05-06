@@ -1,19 +1,32 @@
 compile_start_time := $(shell date +%s)
-CFLAGS = -I./include -Wall -Werror
+#CFLAGS = -I./include -Wall -Werror
+CFLAGS = -I./include -Wall
 
-objs := user/main.o
+#objs := user/main.o
 objs += user/day_of_week.o
 objs += user/day_in_month.o
 objs += user/get_current_time.o
 
 
-all : overtime
-.PHONY : all clean cscope install gdb
+#all : overtime
+all : ot otd
+.PHONY : all clean install
 
-overtime : $(objs)
+#overtime : $(objs)
+#	cc $^ -o $@
+ot : $(objs) user/ot.o
+	cc $^ -o $@
+otd : $(objs) user/otd.o
 	cc $^ -o $@
 
-user/main.o : include/day_of_week.h include/day_in_month.h include/get_current_time.h
+#user/main.o : include/day_of_week.h include/day_in_month.h include/get_current_time.h
+user/ot.o : include/day_of_week.h include/day_in_month.h include/get_current_time.h
+user/otd.o : include/day_of_week.h include/day_in_month.h include/get_current_time.h
+#user/ot.o : user/ot.c
+#	cc -c $^ -o $@ $(CFLAGS)
+#user/otd.o : user/otd.c
+#	cc -c $^ -o $@ $(CFLAGS)
+
 
 #user/main.o : user/main.c
 #	cc -c $^ -o $@ $(CFLAGS)
@@ -24,11 +37,6 @@ user/main.o : include/day_of_week.h include/day_in_month.h include/get_current_t
 #user/get_current_time.o: user/get_current_time.c
 #	cc -c $^ -o $@
 
-cscope :
-	cscope -Rbq
-
-gdb : all
-	cc -o user/main.o -c -g user/main.c $(CFLAGS)
 
 install : all
 	sudo install -c overtime /usr/local/bin
@@ -36,8 +44,6 @@ install : all
 
 clean :
 	@echo 'clean up redundant files..'
-	@rm -f cscope.* overtime *.o *.i *.s
+	@rm -f ot otd cscope.* overtime *.socket *.o *.i *.s
 	@cd user; rm -f *.o
 	@echo 'Done.'
-    
-
