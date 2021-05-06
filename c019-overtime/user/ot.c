@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <time.h>
+#include <netdb.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -55,33 +56,47 @@ char buf[2440] = "";
  * Create a client endpoint and connect to a server.
  * Returns fd if all OK, <0 on error.
  */
-int cli_conn(char *server_ip)
+int cli_conn(char *host)
 {
-    int fd, err, rval;
-    struct sockaddr_in ser_sockaddr;
+    int fd, s;
+    char port[16] = "";
+    struct addrinfo hints;
+    struct addrinfo *result, *rp;
 
-    /* create a socket */
-    if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        return (-1);
+    /* Obtain address(es) matching host/port */
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;	        /* Allow IPv4 */
+    hints.ai_socktype = SOCK_STREAM;    /* stream socket */
+    hints.ai_flags = 0;
+    hints.ai_protocol = 0;	        /* Any protocol */
 
-    /* fill socket address structure with server's address */
-    memset(&ser_sockaddr, 0, sizeof(ser_sockaddr));
-    ser_sockaddr.sin_family = AF_INET;
-    inet_pton(AF_INET, server_ip, &ser_sockaddr.sin_addr);
-    ser_sockaddr.sin_port = htons(SERV_PORT);
-
-    if (connect(fd, (struct sockaddr *) &ser_sockaddr, sizeof(ser_sockaddr)) < 0) {
-        rval = -4;
-        goto errout;
+    snprintf(port, sizeof(port), "%d", SERV_PORT);
+    s = getaddrinfo(host, port, &hints, &result);
+    if (s != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(s));
+        exit(EXIT_FAILURE);
     }
 
-    return (fd);
+    /* getaddrinfo() returns a list of address structures.
+       Try each address until we successfully connect(2).
+       If socket(2) (or connect(2)) fails, we (close the socket
+       and) try the next address. */
 
-errout:
-    err = errno;
-    close(fd);
-    errno = err;
-    return (rval);
+    for (rp = result; rp != NULL; rp = rp->ai_next) {
+        fd = socket(rp->ai_family, rp->ai_socktype,
+                rp->ai_protocol);
+        if (fd == -1)
+            continue;
+
+        if (connect(fd, rp->ai_addr, rp->ai_addrlen) != -1)
+            break;		   /* Success */
+
+        close(fd);
+    }
+
+    freeaddrinfo(result);	   /* No longer needed */
+
+    return (fd);
 }
 
 int fd;

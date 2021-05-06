@@ -130,6 +130,10 @@ int main(int argc, char **argv)
     signal(SIGINT, sighandler);
     init();
     lfd = serv_listen();
+    if (lfd < 0) {
+        perror("error");
+        exit(EXIT_FAILURE);
+    }
     while (1) {
         cfd = serv_accept(lfd);
 
@@ -202,7 +206,6 @@ static int init()
     } else {                    // if file does not exit, create and init it.
         write_to_file();
     }
-
 
     return 0;
 }
