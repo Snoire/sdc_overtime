@@ -153,7 +153,7 @@ r_again:
                 break;
             }
 
-            printf("%d, %d, %d\n", buf[0], buf[1], buf[2]);
+            printf("%d, %d, %d(%hd %hd)\n", buf[0], buf[1], buf[2], buf[2]>>16, (short) buf[2]);
             ot_process(buf[0], buf[1], buf[2]);
         }
     }
@@ -279,7 +279,7 @@ static int del_record(int delnum)
             record[i - 1] = record[i];
         total_records--;
     }
-    printf("delnum: %d\n", delnum); /* debug */
+    write_to_file();
 
     return 0;
 }
@@ -437,7 +437,6 @@ static int change_record(int number, int date, short stime, short etime)
         number--;
 
         record[total_records] = record[number]; //record[total_records] 这个是范围之外的，拿来做临时存储的地方，之后也不用删除
-        record[total_records].date = date;
         record[total_records].startime = stime;
         record[total_records].endtime = etime;
 
