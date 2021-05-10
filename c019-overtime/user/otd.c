@@ -178,13 +178,10 @@ static int init()
     tmp = get_current_time();   //初始化的时候就要存储时间信息
     pre_date = ((tmp->tm_year + 1900) * 100 + tmp->tm_mon + 1) * 100;
 
-#if 0
-    char data_dir[7 + 32 + 6] = { 0 };
-    strcat(data_dir, homevar);
-    strcat(data_dir, "/.data");
-    if (access(data_dir, F_OK) != 0)    //文件夹不存在
-        mkdir(data_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-#endif
+    if(-1 == daemon(0, 0)) {
+        printf("daemon error\n");
+        exit(1);
+    }
 
     char *homevar = getenv("USER");
 
