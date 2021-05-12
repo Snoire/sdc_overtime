@@ -89,7 +89,8 @@ c080-结构体里的成员数组和指针 \
 c081-callback_func \
 c082-Makefile \
 c084-gnu_c \
-c085-socket
+c085-socket \
+c086-mmap
 
 #c009 \
 #c067-两头文件中包含同一个变量定义 \
