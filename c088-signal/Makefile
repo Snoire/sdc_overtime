@@ -1,6 +1,6 @@
 .PHONY : all
 OBJS = $(patsubst %.c,%,$(wildcard *.c))
-CFLAGS = -Wall -Werror
+CFLAGS = -Wall -g
 
 all : $(OBJS)
 

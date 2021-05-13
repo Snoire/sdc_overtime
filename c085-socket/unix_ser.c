@@ -154,6 +154,7 @@ r_again:
             buf[i] = toupper(buf[i]);
 
         write(cfd, buf, n);
+        write(cfd, buf, n);
     }
 
     close(cfd);

@@ -79,6 +79,7 @@ int main(void)
 
     while (fgets(buf, sizeof(buf), stdin) != NULL) {
         write(fd, buf, strlen(buf));
+        sleep(12);
         n = read(fd, buf, sizeof(buf));
         write(STDOUT_FILENO, buf, n);
     }
