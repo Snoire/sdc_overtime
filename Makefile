@@ -90,7 +90,9 @@ c081-callback_func \
 c082-Makefile \
 c084-gnu_c \
 c085-socket \
-c086-mmap
+c086-mmap \
+c087-FIFO \
+c088-signal
 
 #c009 \
 #c067-两头文件中包含同一个变量定义 \
