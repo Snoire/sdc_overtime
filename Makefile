@@ -92,7 +92,9 @@ c084-gnu_c \
 c085-socket \
 c086-mmap \
 c087-FIFO \
-c088-signal
+c088-signal \
+c089-extern \
+c090-posix_semaphores
 
 #c009 \
 #c067-两头文件中包含同一个变量定义 \

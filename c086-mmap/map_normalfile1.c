@@ -24,6 +24,7 @@ int main(int argc, char **argv)     // map a normal file as shared mem:
         fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
         return -1;
     }
+    printf("pagesize: %d\n", getpagesize());
 
     fd = open(argv[1], O_CREAT | O_RDWR | O_TRUNC, 00777);
     stat(argv[1], &st);
