@@ -40,10 +40,21 @@ int main(int argc, char **argv)     // map a normal file as shared mem:
     stat(argv[1], &st);
     printf("st.size: %ld\n", st.st_size);
 
+    /* TODO: 出错时返回值为 MAP_FAILED (-1)，而不是 NULL。。 */
     p_map = (people *) mmap(NULL, sizeof(people) * 10, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     printf("mmap succeeded\n");
-    close(fd);
+//    close(fd);
     temp = 'a';
+
+    struct flock lock;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0; /* lock the whole file */
+    lock.l_type = F_WRLCK;
+    fcntl(fd, F_SETLKW, &lock);
+
+    printf("sleep\n");
+    sleep(8);   /* 注释这一行 */
 
     for (i = 0; i < 10; i++) {
         temp += 1;
@@ -51,6 +62,8 @@ int main(int argc, char **argv)     // map a normal file as shared mem:
         (*(p_map + i)).age = 20 + i;
     }
 
+    lock.l_type = F_UNLCK;  /* unlock */
+    fcntl(fd, F_SETLKW, &lock);
     printf("initialize over\n");
     sleep(15);   /* 注释这一行 */
 

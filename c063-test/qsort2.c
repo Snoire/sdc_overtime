@@ -51,6 +51,7 @@ int main()
     printf("\n");
 
 
+    srand((unsigned int) -1);
     int **arr2 = (int**)calloc(10, sizeof(int*));
     for (int i = 0; i < 10; i++) {
         arr2[i] = (int*)calloc(2, sizeof(int));
