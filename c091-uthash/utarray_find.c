@@ -15,7 +15,7 @@ UT_icd ea_icd = { sizeof(struct ether_addr), NULL, NULL, NULL };
  * 所以我这里把 struct ether_addr 当作 long 来排序，哈哈
  * int 才四个字节，不够用，所以用 long
  * 省得用 ether_ntoa 转换成 macstr，再逐个比较字符 */
-#if 1  /* 我以为可以的。。当我没说 */
+#if 0  /* 我以为可以的。。当我没说 */
 static int easort(const void *_a, const void *_b) {
 //    unsigned char * a = (const unsigned char *)_a;
 //    unsigned char * b = (const unsigned char *)_b;
@@ -29,10 +29,16 @@ static int easort(const void *_a, const void *_b) {
     }
     return 0;
 }
-#else /* 这个也不行 */
+#elif 1   /* 突然发现 memcmp 用来这里非常合适 */
 static int easort(const void *a, const void *b) {
-    int _a = *(const int *)a;
-    int _b = *(const int *)b;
+    return memcmp(a, b, 6);
+}
+#else
+static int easort(const void *a, const void *b) {
+    unsigned long _a = *(const unsigned long *)a << 16;  /* 这样好像可以，把多余的两个字节去掉 */
+    unsigned long _b = *(const unsigned long *)b << 16;  /* 但是这样写不好 */
+
+    printf("%lu %s %lu\n", _a, (_a < _b) ? "<": (_a > _b) ? ">" :"=", _b);
     return (_a < _b) ? -1 : (_a > _b);
 }
 #endif
@@ -50,22 +56,22 @@ int main()
     macstr = "14:2E:5E:89:09:BE";
     ether_aton_r(macstr, &ea);
     utarray_push_back(maclist, &ea);
-    printf("ea: %lu\n", *(long *) &ea);
+    printf("ea: %lu\n", *(unsigned long *) &ea << 16);
 
     macstr = "D4:3B:04:BF:59:14";
     ether_aton_r(macstr, &ea);
     utarray_push_back(maclist, &ea);
-    printf("ea: %lu\n", *(long *) &ea);
+    printf("ea: %lu\n", *(unsigned long *) &ea << 16);
 
     macstr = "4E:A8:71:09:E6:94";
     ether_aton_r(macstr, &ea);
     utarray_push_back(maclist, &ea);
-    printf("ea: %lu\n", *(long *) &ea);
+    printf("ea: %lu\n", *(unsigned long *) &ea << 16);
 
     macstr = "5C:87:9C:F0:AD:DE";
     ether_aton_r(macstr, &ea);
     utarray_push_back(maclist, &ea);
-    printf("ea: %lu\n", *(long *) &ea);
+    printf("ea: %lu\n", *(unsigned long *) &ea << 16);
 
     /* print */
     int i = 0;
@@ -77,10 +83,10 @@ int main()
         i++;
     }
 
-//    macstr = "5c:87:9c:f0:ad:de";
+    macstr = "5c:87:9c:f0:ad:de";
 //    macstr = "4e:a8:71:09:e6:94";
 //    macstr = "4e:A8:71:09:e6:94";
-    macstr = "3e:A8:71:09:e6:94";
+//    macstr = "3e:A8:71:09:e6:94";
     ether_aton_r(macstr, &ea);
 
     /* find */

@@ -95,7 +95,8 @@ c087-FIFO \
 c088-signal \
 c089-extern \
 c090-posix_semaphores \
-c091-uthash
+c091-uthash \
+c092-function
 
 #c009 \
 #c067-两头文件中包含同一个变量定义 \

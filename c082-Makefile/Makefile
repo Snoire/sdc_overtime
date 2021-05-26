@@ -29,3 +29,6 @@ bar1:= $(subst $(space),,,$(foo1))
 func :
 	@echo $(bar)
 	@echo $(bar1)
+
+sub :
+	make -C sub1 sub
