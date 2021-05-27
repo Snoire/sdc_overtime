@@ -7,7 +7,6 @@ struct ether_addr {
     uint8_t ether_addr_octet[6];
 }
 #endif
-UT_icd ea_icd = { sizeof(struct ether_addr), NULL, NULL, NULL };
 
 /* 对于 bsearch 来说，怎么排序并不重要，
  * 只要给它一个能排序的方法就行
@@ -46,8 +45,9 @@ static int easort(const void *a, const void *b) {
 int main()
 {
     UT_array *maclist;
-    struct ether_addr ea, *p;
+    UT_icd ea_icd = { sizeof(struct ether_addr), NULL, NULL, NULL };
     utarray_new(maclist, &ea_icd);
+    struct ether_addr ea, *p;
     printf("len of array: %d\n", utarray_len(maclist));
 
     char *macstr = NULL;
