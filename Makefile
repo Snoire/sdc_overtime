@@ -16,6 +16,7 @@ c005-\(字符\)数组与指针 \
 c006-snprintf \
 c007-sprintf_snprintf \
 c008-getopt \
+c009-algorithm \
 c010-字符串与指针与段错误 \
 c011-NULL和空字符串的值是否为0 \
 c012-前自增后自增 \
