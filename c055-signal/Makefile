@@ -1,10 +1,17 @@
-all : c55
-.PHONY : all
+.PHONY : all echo clean
 
-c55 : main.o
-	cc -o c55 main.o
-main.o : main.c
-	cc -c main.c
+OBJS := c55
+OBJS += $(filter-out main,$(patsubst %.c,%,$(wildcard *.c)))
+
+CFLAGS = -Wall
+
+all: $(OBJS)
+
+c55 : main.c
+	cc main.c -o c55
+
+echo :
+	@echo $(OBJS)
 
 clean :
-	-rm -f *.o *~ cscope* c55
+	-rm -f $(OBJS) *~ *.o

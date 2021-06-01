@@ -17,7 +17,7 @@ void new_op(int signum, siginfo_t * info, void *myact)
 
     printf("signo: %d, code: %d, pid: %d, uid: %d, int: %d, ptr: %p\n",
             info->si_signo, info->si_code, info->si_pid, info->si_uid,
-            info->si_value.sival_int, info->si_value.sival_ptr);
+            info->si_value.sival_int, info->si_value.sival_ptr);    /* 传过来的指针无法在另一个进程中访问 */
     printf("the int value is %d \n", info->si_int);
 //    printf("rate: %d\n", pentry->rate);
     while(1);
