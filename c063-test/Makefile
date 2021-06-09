@@ -3,7 +3,7 @@
 OBJS := c63
 OBJS += $(filter-out main,$(patsubst %.c,%,$(wildcard *.c)))
 
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 CFLAGS += -I../../play/uthash/include
 
 all: $(OBJS)
@@ -25,4 +25,4 @@ echo :
 	@echo $(OBJS)
 
 clean :
-	-rm -f $(OBJS) *~ *.o unlink.txt rename.old rename.new
+	-rm -f $(OBJS) *~ *.o core unlink.txt rename.old rename.new

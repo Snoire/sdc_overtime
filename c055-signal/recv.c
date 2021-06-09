@@ -13,7 +13,7 @@ struct wired_device_t {
 
 void new_op(int signum, siginfo_t * info, void *myact)
 {
-    struct wired_device_t *pentry = info->si_value.sival_ptr;
+    __attribute__((unused)) struct wired_device_t *pentry = info->si_value.sival_ptr;
 
     printf("signo: %d, code: %d, pid: %d, uid: %d, int: %d, ptr: %p\n",
             info->si_signo, info->si_code, info->si_pid, info->si_uid,

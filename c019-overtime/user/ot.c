@@ -187,8 +187,8 @@ int main(int argc, char **argv)
 
 void sighandler(int signum)
 {
-    printf("\nbye..\n\n");
-    exit(1);
+    printf("\nbye..\n\n");  /* UNSAFE */
+    exit(1);                /* UNSAFE */
 }
 
 

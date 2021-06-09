@@ -20,6 +20,8 @@ int main()
     else
         printf("d/1000 = %d\n", d / 1000);
 
+    printf("d/1000 = %.0f\n", c / 1000.0);  /* 四舍五入 */
+
     return 0;
 }
 
