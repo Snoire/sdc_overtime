@@ -1,7 +1,7 @@
 .PHONY : all
 OBJS = $(patsubst %.c,%,$(wildcard *.c))
 # https://github.com/troydhanson/uthash
-CFLAGS = -Wall -g -I../../play/uthash/include
+CFLAGS = -Wall -g -I./uthash/include
 
 all : $(OBJS)
 

@@ -1,0 +1,3 @@
+[submodule "c091-uthash/uthash"]
+	path = c091-uthash/uthash
+	url = https://github.com/troydhanson/uthash.git
