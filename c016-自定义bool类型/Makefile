@@ -1,10 +1,13 @@
-all : c16
-.PHONY : all
+.PHONY : all clean
+CFLAGS = -Wall -Werror -g
 
-c16 : main.o
-	cc -o c16 main.o
-main.o : main.c
-	cc -c main.c
+OBJS := c16
+OBJS += $(filter-out main,$(patsubst %.c,%,$(wildcard *.c)))
+
+all: $(OBJS)
+
+c16 : main.c
+	cc main.c -o c16
 
 clean :
-	-rm -f *.o *~ cscope* c16
+	-rm -f *.o *~ cscope* $(OBJS)
