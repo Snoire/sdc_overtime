@@ -25,4 +25,4 @@ echo :
 	@echo $(OBJS)
 
 clean :
-	-rm -f $(OBJS) *~ *.o core unlink.txt rename.old rename.new
+	-rm -f $(OBJS) *~ *.o core unlink.txt rename.old rename.new a.out
