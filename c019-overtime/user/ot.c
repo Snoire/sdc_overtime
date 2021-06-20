@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -43,12 +44,13 @@ typedef enum {
 static int welcome();
 static int init();
 static int do_add();
-static int do_delete();
-static int do_modify();
+static int do_delete(uint8_t val);
+static int do_modify(uint8_t val);
 static int do_search();
 static int parse_args(int, char **);
 static int show_help();
 static void sighandler(int);
+static void get_total_records(void);
 int ot_process(int mode, int date, int data);
 
 char buf[2440] = "";
@@ -102,39 +104,44 @@ int cli_conn(char *host)
 int fd;
 void interactive_loop()
 {
-    int ret = 0;
     volatile int loop = 1;      //继续循环的标志
 
     welcome();
 
+    fflush(stdout);
     while (loop) {
-        ret = 0;            //如果不恢复初始值，随便输入一个字母将保持上次的结果
+        uint8_t opt = 0, val = 0;
+        char str[5] = "";
 
         printf(COLOR_CYAN "(ot) " COLOR_RESET);
-        fflush(stdout);
-        ret = getchar();
-        if (ret == 10)      //遇到换行符
-            ret = 0;
-        else if (ret == -1) //遇到 Ctrl+d
-            ret = 'q';
-        else {
-            scanf("%*[^\n]");       //其它情况，输入缓冲区里都至少有一个 '\n'，\n 之前可能有其他字符
-            scanf("%*c");           //所以要清空缓冲区
+
+        if (fgets(str, 5 , stdin) == NULL) { /* EOF */
+            opt = 'q';
         }
 
-        switch (ret) {
+        if( *(str+3)!='\n' && *(str+3)!=0 ) {
+            scanf("%*[^\n]"); //逐个读取缓冲区中\n之前的其它字符
+            scanf("%*c");     //再将这个\n读取并丢弃
+        }
+
+        /* d150 这种情况也能解析出来，所以 val 的取值范围不一定是 2 位以下 */
+        sscanf(str, "%c %hhu\n", &opt, &val);
+
+        get_total_records();
+
+        switch (opt) {
         case 'h':
             printf("a: add     h: help     l: list     q: quit\n"
-                   "d: delete  m: modify   s: search\n\n");
+                   "d: delete [num]  m: modify [num]   s: search\n\n");
             break;
         case 'a':
             do_add();
             break;
         case 'd':
-            do_delete();
+            do_delete(val);
             break;
         case 'm':
-            do_modify();
+            do_modify(val);
             break;
         case 'l':
             ot_process(OT_MODE_SHOW, 0, 0);
@@ -147,6 +154,7 @@ void interactive_loop()
         case 'q':
             loop = 0;
             break;
+        case '\n':
         case 0:
             break;
         default:
@@ -250,15 +258,16 @@ static int readtime(int flag)
     return time;
 }
 
-
+static void get_total_records()
+{
+    ot_process(OT_MODE_GETVAL, 0, 0);
+    read(fd, &total_records, sizeof(total_records));
+}
 
 static int readindex()
 {
     int index, ret;
     char str[3] = { 0 };
-
-    ot_process(OT_MODE_GETVAL, 0, 0);
-    read(fd, &total_records, sizeof(total_records));
 
     ret = scanf("%2[0-9]", str);
     if (ret == 1)               //一或两个数字
@@ -335,17 +344,23 @@ static int do_add()
 
 
 
-static int do_delete()
+static int do_delete(uint8_t val)
 {
-    int delnum;
+    int delnum = 0;
+    if (val > 0) {
+        delnum = val;
+    } else {
+        printf("please input the num that you want to del:\n");
+        printf("default the last one: ");
 
-    printf("please input the num that you want to del:\n");
-    printf("default the last one: ");
-
-    if ((delnum = readindex()) == -1) {
-        printf("\n");
-        return -1;
+        if ((delnum = readindex()) == -1) {
+            printf("\n");
+            return -1;
+        }
     }
+
+    if (delnum < 1 || delnum > total_records)
+        return 0;
 
     ot_process(OT_MODE_DEL, 0, delnum);
     printf("\n");
@@ -355,17 +370,20 @@ static int do_delete()
 
 
 
-static int do_modify()
+static int do_modify(uint8_t val)
 {
     int stime, etime, modnum;
-//    ot_process(OT_MODE_SHOW, 0, 0);
 
-    printf("please input the num that you what to modify:\n");
-    printf("default the last one: ");
+    if (val > 0) {
+        modnum = val;
+    } else {
+        printf("please input the num that you what to modify:\n");
+        printf("default the last one: ");
 
-    if ((modnum = readindex()) == -1) {
-        printf("\n");
-        return -1;
+        if ((modnum = readindex()) == -1) {
+            printf("\n");
+            return -1;
+        }
     }
 
     if (modnum < 1 || modnum > total_records)
