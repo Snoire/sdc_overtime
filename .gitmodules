@@ -1,3 +1,6 @@
 [submodule "c091-uthash/uthash"]
 	path = c091-uthash/uthash
 	url = https://github.com/troydhanson/uthash.git
+[submodule "c093-gtk/Gtk4-tutorial"]
+	path = c093-gtk/Gtk4-tutorial
+	url = https://github.com/ToshioCP/Gtk4-tutorial.git
