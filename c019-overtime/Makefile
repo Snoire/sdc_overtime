@@ -39,7 +39,8 @@ user/otd.o : include/day_of_week.h include/day_in_month.h include/get_current_ti
 
 
 install : all
-	sudo install -c overtime /usr/local/bin
+	sudo install -c ot /usr/local/bin
+	sudo install -c otd /usr/local/bin
 	sudo install -c overtime.1 /usr/local/man/man1
 
 clean :

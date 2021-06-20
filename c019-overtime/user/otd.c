@@ -132,7 +132,12 @@ int main(int argc, char **argv)
     int buf[3] = {0};
 
     signal(SIGINT, sighandler);
-    init();
+
+    if(-1 == daemon(0, 0)) {
+        printf("daemon error\n");
+        exit(1);
+    }
+
     lfd = serv_listen();
     if (lfd < 0) {
         perror("error");
@@ -140,6 +145,7 @@ int main(int argc, char **argv)
     }
     while (1) {
         cfd = serv_accept(lfd);
+        init();
 
         while (1) {
 r_again:
@@ -177,11 +183,6 @@ static int init()
 
     tmp = get_current_time();   //初始化的时候就要存储时间信息
     pre_date = ((tmp->tm_year + 1900) * 100 + tmp->tm_mon + 1) * 100;
-
-    if(-1 == daemon(0, 0)) {
-        printf("daemon error\n");
-        exit(1);
-    }
 
     char *homevar = getenv("USER");
 
