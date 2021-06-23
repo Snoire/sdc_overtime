@@ -9,7 +9,7 @@ func_t values()
     {
         return ++i;
     }
-    return lambda;
+    return lambda;  /* 这样应该是错的吧 */
 }
 
 int main()

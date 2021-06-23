@@ -25,7 +25,7 @@ func_t lambda(int num, func_t func)
     }
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
     int num;
     func_t func;

@@ -1,8 +1,9 @@
 .PHONY : all
 OBJS = $(patsubst %.c,%,$(wildcard *.c))
-CFLAGS = -Wall -g -lm
+CFLAGS = -Wall -Wextra #-Werror
+LDLIBS = -lm
 
 all : $(OBJS)
 
 clean :
-	-rm -f *.o *~ cscope* *.txt $(OBJS)
+	-rm -f *.o *~ *.out $(OBJS)

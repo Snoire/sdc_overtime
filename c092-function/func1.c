@@ -22,7 +22,7 @@ void (*lambda(int num, void (*func)(int) ) ) (int) {
     }
 }
 
-int main(int argc, char const *argv[])
+int main()
 {
     int num;
     void (*func)(int);
