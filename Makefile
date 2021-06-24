@@ -99,7 +99,8 @@ c090-posix_semaphores \
 c091-uthash \
 c092-function \
 c093-gtk \
-c094-Pointer-Oriented
+c094-Pointer-Oriented \
+c095-Macro
 
 #c067-两头文件中包含同一个变量定义 \
 #c083-link
