@@ -4,7 +4,7 @@ OBJS := c63
 OBJS += $(filter-out main,$(patsubst %.c,%,$(wildcard *.c)))
 
 CFLAGS = -Wall -g
-CFLAGS += -I../../play/uthash/include
+CFLAGS += -I../c091-uthash/uthash/include
 
 all: $(OBJS)
 
