@@ -1,18 +1,24 @@
 .PHONY : all
-CFLAGS = -Wall -g
+CFLAGS := -Wall -g
 CFLAGS += $(shell pkg-config --cflags gtk4)
 CFLAGS += $(shell pkg-config --libs gtk4)
 
-OBJS = $(patsubst %.c,%,$(wildcard *.c))
-VALA_OBJS = $(patsubst %.vala,vala_%,$(wildcard *.vala))
+VALAFLAGS := --pkg gtk4
 
-all : $(OBJS) $(VALA_OBJS)
+export CFLAGS VALAFLAGS
 
-vala_% : VALAFLAGS = --pkg gtk4
-vala_% : %.vala
-	valac $(VALAFLAGS) $^ -o $@
+BUILD_DIRS = GtkApplication GtkLabel
 
-echo :
-	echo $(VALA_OBJS)
-clean :
-	-rm -f *.o *~ *.out $(OBJS) $(VALA_OBJS)
+all :
+	@ for dir in ${BUILD_DIRS}; do \
+		echo "---------------------------------------------------------"; \
+		echo "\033[;36m               gtk/$$dir                \033[;0m"; \
+		echo "---------------------------------------------------------"; \
+		(cd $${dir}; ${MAKE}) ; \
+		if test $$? -ne 0; then break; fi; \
+	done
+
+clean: 
+	@ for dir in ${BUILD_DIRS}; do \
+		(cd $${dir}; ${MAKE} clean) ;\
+	done
