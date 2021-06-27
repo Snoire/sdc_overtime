@@ -47,7 +47,7 @@ void app_open(GLib.Application app, File[] files, string hint) {
 }
 
 int main(string[] args) {
-    var app = new Gtk.Application("com.github.ToshioCP.tfv1", GLib.ApplicationFlags.HANDLES_OPEN);
+    var app = new Gtk.Application("com.github.ToshioCP.tfv4", GLib.ApplicationFlags.HANDLES_OPEN);
     app.activate.connect(app_activate);
     app.open.connect(app_open);
     return app.run(args);

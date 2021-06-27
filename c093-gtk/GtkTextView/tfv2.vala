@@ -22,7 +22,7 @@ His wife was surprized at his tale. They were very happy because they had no chi
 }
 
 int main(string[] args) {
-    var app = new Gtk.Application("com.github.ToshioCP.tfv1", GLib.ApplicationFlags.FLAGS_NONE);
+    var app = new Gtk.Application("com.github.ToshioCP.tfv2", GLib.ApplicationFlags.FLAGS_NONE);
     app.activate.connect(app_activate);
     return app.run(args);
 }
