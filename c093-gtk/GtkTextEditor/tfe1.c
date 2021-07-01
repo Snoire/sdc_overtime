@@ -55,6 +55,7 @@ static gboolean before_close(GtkWindow * win, gpointer user_data)
         scr = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb), i);
         tv = gtk_scrolled_window_get_child(GTK_SCROLLED_WINDOW(scr));
         file = tfe_text_view_get_file(TFE_TEXT_VIEW(tv));
+
         tb = gtk_text_view_get_buffer(GTK_TEXT_VIEW(tv));
         gtk_text_buffer_get_bounds(tb, &start_iter, &end_iter);
         contents = gtk_text_buffer_get_text(tb, &start_iter, &end_iter, FALSE);
