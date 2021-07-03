@@ -1,12 +1,15 @@
 .PHONY : all
 
-OBJS = $(patsubst %.c,%,$(wildcard *.c))
-VALA_OBJS = $(patsubst %.vala,vala_%,$(wildcard *.vala))
+CEXES = $(patsubst %.c,%,$(wildcard *.c))
+VALAEXES = $(patsubst %.vala,vala_%,$(wildcard *.vala))
 
-all : $(OBJS) $(VALA_OBJS)
+all : $(CEXES) $(VALAEXES)
+
+$(CEXES) : %:%.c
+	cc $^ -o $@ $(CFLAGS) $(LDFLAGS)
 
 vala_% : %.vala
 	valac $(VALAFLAGS) $^ -o $@
 
 clean :
-	-rm -f *.o *~ *.out $(OBJS) $(VALA_OBJS)
+	-rm -f *.o *~ *.out $(CEXES) $(VALAEXES)
