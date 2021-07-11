@@ -8,7 +8,7 @@ VALAFLAGS := --pkg gtk4
 
 export CFLAGS LDFLAGS VALAFLAGS
 
-BUILD_DIRS = GtkApplication GtkLabel GtkTextView GtkTextEditor
+BUILD_DIRS = GtkApplication GtkLabel GtkTextView GtkTextEditor BuildSystem
 
 all :
 	@ for dir in ${BUILD_DIRS}; do \

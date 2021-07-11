@@ -18,7 +18,7 @@ vala_% : %.vala
 	valac $(VALAFLAGS) $^ -o $@
 
 vala_tfe3_r : tfe3_r.vala resources.c
-	valac --pkg gtk4 --gresources=tfe3.gresource.xml resources.c $< -o $@
+	valac --pkg gtk4 resources.c $< -o $@
 
 clean :
 	-rm -f *.o *~ *.out $(CEXES) $(VALAEXES) tfe3_r vala_tfe3_r resources.c
